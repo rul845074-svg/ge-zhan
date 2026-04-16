@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PE &amp; Context 全图解</title>
+<link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&amp;family=Noto+Sans+SC:wght@300;400;500;700;900&amp;family=Noto+Serif+SC:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky-top: #7d93ea;
+  --sky-mid: #a9baf8;
+  --sky-bottom: #edf2ff;
+  --paper: #fffdf7;
+  --paper-soft: #f7f6ff;
+  --ink: #262934;
+  --ink-soft: #61708d;
+  --line: #262934;
+  --pink: #f187b5;
+  --yellow: #ffd56c;
+  --teal: #4aa793;
+  --mint: #89d7be;
+  --blue: #6f84d1;
+  --lav: #e9e0ff;
+  --peach: #ffd9c5;
+  --red: #ff8d86;
+  --gold: #ffec9e;
+  --serif: "Noto Serif SC", serif;
+  --stroke: 2.5px solid var(--line);
+  --shadow-flat: 0 10px 0 rgba(38, 41, 52, 0.12);
+  --shadow-card: 0 14px 0 rgba(38, 41, 52, 0.08);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255,255,255,0.44), transparent 15%),
+    radial-gradient(circle at 88% 10%, rgba(255,213,108,0.18), transparent 16%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 34%, var(--sky-bottom) 72%, #f6f9ff 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 20% 84%, rgba(255,255,255,0.22) 0 7px, transparent 8px) 0 0 / 36px 36px,
+    linear-gradient(180deg, rgba(255,255,255,0.2), transparent 26%);
+  opacity: 0.3;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 78% 22%, rgba(255,255,255,0.26), transparent 32%),
+    radial-gradient(ellipse at 14% 92%, rgba(255,255,255,0.24), transparent 28%);
+}
+
+a { color: inherit; text-decoration: none; }
+
+.page-shell {
+  width: min(1280px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.site-header {
+  position: relative;
+  overflow: hidden;
+  padding: 38px 0 22px;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  right: -70px;
+  top: -80px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.16);
+  opacity: 0.3;
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  left: -30px;
+  bottom: 14px;
+  width: 180px;
+  height: 180px;
+  border-radius: 42px;
+  border: var(--stroke);
+  transform: rotate(14deg);
+  background: rgba(255,255,255,0.14);
+  opacity: 0.22;
+}
+
+.hero-wrap {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 540px);
+  gap: 34px;
+  align-items: center;
+}
+
+.hero-copy {
+  padding: 10px 0 6px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.88);
+  box-shadow: var(--shadow-flat);
+  transform: rotate(-2deg);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.site-title {
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: clamp(40px, 6vw, 84px);
+  line-height: 0.96;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+  max-width: 680px;
+  text-wrap: balance;
+}
+
+.site-title em {
+  font-style: normal;
+  color: var(--pink);
+  text-shadow: 4px 4px 0 rgba(255,255,255,0.34);
+}
+
+.hero-note {
+  max-width: 620px;
+  padding: 18px 22px;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.7);
+  box-shadow: 0 10px 0 rgba(38,41,52,0.08);
+  font-size: 16px;
+  color: #2a3851;
+  text-wrap: pretty;
+}
+
+.hero-meta {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.82);
+  box-shadow: 0 8px 0 rgba(38,41,52,0.06);
+  font-size: 13px;
+  font-weight: 700;
+  color: #33415d;
+}
+
+.meta-pill:nth-child(2) { transform: rotate(-2deg); }
+.meta-pill:nth-child(3) { transform: rotate(2deg); }
+
+.hero-graphic {
+  position: relative;
+  min-height: 470px;
+  border-radius: 42px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, #8ea3f5 0%, #d8e0ff 100%);
+  box-shadow: 0 16px 0 rgba(38,41,52,0.1);
+  overflow: hidden;
+}
+
+.hero-graphic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 32% 14%, rgba(255,255,255,0.42), transparent 18%),
+    linear-gradient(180deg, rgba(255,255,255,0.08), transparent 34%);
+}
+
+.hero-graphic::after {
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -70px;
+  height: 150px;
+  border-top: var(--stroke);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: rgba(255,255,255,0.16);
+}
+
+.hero-scene { position: absolute; inset: 0; }
+
+.scene-road {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 380px;
+  height: 112px;
+  transform: translate(-50%, -50%) rotate(-11deg);
+  border: var(--stroke);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.84);
+}
+
+.scene-road::before {
+  content: "";
+  position: absolute;
+  inset: 42px 20px;
+  border-radius: 999px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 20px, rgba(38,41,52,0.88) 20px 36px);
+}
+
+.scene-node,
+.scene-cloud,
+.scene-star,
+.scene-note {
+  position: absolute;
+}
+
+.scene-cloud {
+  width: 124px;
+  height: 48px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.88);
+  box-shadow:
+    22px -16px 0 0 rgba(255,255,255,0.88),
+    22px -16px 0 2.5px var(--line),
+    68px 0 0 0 rgba(255,255,255,0.88),
+    68px 0 0 2.5px var(--line);
+}
+
+.cloud-a { left: 34px; top: 52px; transform: scale(0.92); }
+.cloud-b { right: 118px; top: 86px; transform: scale(0.74); }
+
+.scene-star {
+  width: 86px;
+  height: 86px;
+  left: 246px;
+  top: 58px;
+  background: var(--line);
+  clip-path: polygon(50% 0%, 62% 28%, 100% 18%, 74% 50%, 100% 82%, 62% 72%, 50% 100%, 38% 72%, 0% 82%, 26% 50%, 0% 18%, 38% 28%);
+  transform: rotate(-16deg);
+}
+
+.scene-star::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  background: var(--yellow);
+  clip-path: inherit;
+}
+
+.scene-node {
+  width: 102px;
+  min-height: 84px;
+  padding: 14px 10px 12px;
+  border-radius: 22px;
+  border: var(--stroke);
+  box-shadow: var(--shadow-flat);
+  text-align: center;
+}
+
+.scene-node b {
+  display: block;
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: 22px;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.scene-node span {
+  display: block;
+  font-size: 12px;
+  color: #49556d;
+  line-height: 1.35;
+}
+
+.node-1 { left: 30px; top: 154px; background: #fff0c4; transform: rotate(-6deg); }
+.node-2 { left: 136px; top: 104px; background: #dff7ea; transform: rotate(4deg); }
+.node-3 { left: 256px; top: 148px; background: #dff2ff; transform: rotate(-4deg); }
+.node-4 { left: 378px; top: 102px; background: #ece5ff; transform: rotate(6deg); }
+.node-5 { left: 114px; top: 290px; background: #ffd8e6; transform: rotate(-4deg); }
+.node-6 { left: 250px; top: 326px; background: #ffe0d3; transform: rotate(5deg); }
+.node-7 { right: 28px; top: 274px; background: #e4f8cd; transform: rotate(-5deg); }
+
+.scene-note {
+  left: 34px;
+  bottom: 34px;
+  width: 278px;
+  padding: 16px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.8);
+  box-shadow: var(--shadow-flat);
+}
+
+.scene-note strong {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #28334d;
+}
+
+.scene-note ul {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.scene-note li {
+  display: flex;
+  gap: 8px;
+  font-size: 13px;
+  color: #4a5670;
+}
+
+.scene-note li::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  margin-top: 5px;
+  flex: none;
+  border-radius: 50%;
+  border: var(--stroke);
+  background: var(--pink);
+}
+
+.timeline-shell {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  padding: 0 0 18px;
+  background: linear-gradient(180deg, rgba(125,147,234,0.86) 0%, rgba(125,147,234,0) 100%);
+}
+
+.timeline {
+  width: min(1280px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.84);
+  box-shadow: 0 12px 0 rgba(38,41,52,0.1);
+}
+
+.timeline::-webkit-scrollbar { display: none; }
+
+.t-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 96px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 28px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.t-link:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.58);
+}
+
+.t-link.active {
+  background: rgba(255,255,255,0.94);
+  box-shadow: 0 8px 0 rgba(38,41,52,0.06);
+}
+
+.t-dot {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: var(--paper);
+  font-size: 20px;
+}
+
+.t-link.active .t-dot {
+  background: var(--blue);
+  color: #fff;
+}
+
+.t-name {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.t-stage {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.74;
+}
+
+.t-line {
+  flex: 0 0 26px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(38,41,52,0.16);
+}
+
+.main { padding: 10px 0 72px; }
+
+.chapter {
+  position: relative;
+  scroll-margin-top: 102px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border-radius: 38px;
+  border: var(--stroke);
+  background: var(--paper);
+  box-shadow: var(--shadow-card);
+}
+
+.chapter::before {
+  content: "";
+  position: absolute;
+  right: 28px;
+  top: 24px;
+  width: 104px;
+  height: 24px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.44);
+  transform: rotate(8deg);
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+.chapter-band {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 22px;
+  align-items: flex-start;
+  padding: 34px 38px;
+  color: #fff;
+  border-bottom: var(--stroke);
+  overflow: hidden;
+}
+
+.chapter-band::before {
+  content: "";
+  position: absolute;
+  right: 32px;
+  top: 18px;
+  width: 138px;
+  height: 138px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.24);
+  background: rgba(255,255,255,0.08);
+}
+
+.chapter-band::after {
+  content: attr(data-num);
+  position: absolute;
+  right: -4px;
+  top: -22px;
+  font-size: 160px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -8px;
+  opacity: 0.14;
+}
+
+.chapter-icon {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.88);
+  color: var(--line);
+  font-size: 42px;
+  z-index: 1;
+}
+
+.chapter-copy { position: relative; z-index: 1; }
+
+.chapter-seq {
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  opacity: 0.76;
+}
+
+.chapter-title {
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.05;
+}
+
+.chapter-sub {
+  margin-top: 14px;
+  max-width: 760px;
+  padding: 12px 16px;
+  border-radius: 22px;
+  border: 2px solid rgba(255,255,255,0.32);
+  background: rgba(255,255,255,0.16);
+  font-size: 14.5px;
+  line-height: 1.75;
+  font-family: var(--serif);
+}
+
+.chapter-meta {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.14);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.chapter-body {
+  padding: 28px 34px 34px;
+  display: grid;
+  gap: 22px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.54), rgba(248,248,255,0.94));
+}
+
+.section-label {
+  margin-bottom: 14px;
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: 22px;
+  color: var(--line);
+}
+
+.summary-board {
+  padding: 22px 24px;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,0.94), rgba(252,250,241,0.9));
+  box-shadow: 0 10px 0 rgba(38,41,52,0.06);
+}
+
+.summary-board p {
+  font-size: 15px;
+  color: #344157;
+  line-height: 1.75;
+}
+
+.panel-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.panel-row::-webkit-scrollbar { display: none; }
+
+.mini-card {
+  position: relative;
+  flex: 1;
+  min-width: 182px;
+  padding: 18px 16px 16px;
+  border-radius: 28px;
+  border: var(--stroke);
+  box-shadow: 0 10px 0 rgba(38,41,52,0.08);
+  overflow: hidden;
+}
+
+.mini-card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 52px;
+  height: 14px;
+  border-radius: 999px;
+  transform: translateX(-50%) rotate(-4deg);
+  background: rgba(255,255,255,0.56);
+}
+
+.mini-card h4 {
+  margin-top: 6px;
+  margin-bottom: 6px;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.mini-card p {
+  font-size: 13px;
+  color: #4a5670;
+  line-height: 1.55;
+}
+
+.shape-card small,
+.mini-card small,
+.six-card small,
+.quad-cell small,
+.ctx-layer small,
+.blue-card small,
+.workflow-card small {
+  display: block;
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: #64708a;
+  line-height: 1.6;
+}
+
+.mini-card.warm { background: #fff2c9; }
+.mini-card.cool { background: #dff2ff; }
+.mini-card.love { background: #ffd8e6; }
+.mini-card.grow { background: #dff7e9; }
+.mini-card.lav { background: #ece5ff; }
+.mini-card.peach { background: #ffe0d3; }
+
+.diagram-board {
+  padding: 18px;
+  border-radius: 30px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(243,246,255,0.95));
+  box-shadow: 0 10px 0 rgba(38,41,52,0.06);
+}
+
+.flow-track,
+.stack-board,
+.workflow-board {
+  display: grid;
+  gap: 14px;
+}
+
+.flow-track {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+}
+
+.flow-step {
+  position: relative;
+  padding: 18px 14px;
+  border-radius: 24px;
+  border: var(--stroke);
+  text-align: center;
+  background: #fff;
+}
+
+.flow-step b {
+  display: block;
+  margin-bottom: 6px;
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: 22px;
+}
+
+.flow-step span {
+  font-size: 12px;
+  color: #55627e;
+  line-height: 1.45;
+}
+
+.flow-arrow {
+  position: relative;
+}
+
+.flow-arrow::before {
+  content: "";
+  position: absolute;
+  left: -9px;
+  right: -9px;
+  top: 50%;
+  height: 5px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.flow-arrow::after {
+  content: "";
+  position: absolute;
+  right: -9px;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  transform: translateY(-50%);
+  background: var(--line);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.triple-grid,
+.double-grid,
+.four-grid,
+.five-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.triple-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.double-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+}
+.four-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.five-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+.role-grid .mini-card {
+  min-width: 0;
+  height: auto;
+}
+
+.role-card p {
+  margin-bottom: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #38455f;
+}
+
+.role-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.role-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.56);
+  font-size: 11px;
+  font-weight: 800;
+  color: #485670;
+}
+
+.role-note {
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.5);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #596783;
+}
+
+.prompt-assembly {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.assembly-card {
+  position: relative;
+  padding: 18px 14px;
+  border-radius: 22px;
+  border: var(--stroke);
+  background: #fff;
+  box-shadow: 0 8px 0 rgba(38,41,52,0.05);
+}
+
+.assembly-card::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -16px;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  background: var(--line);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.assembly-card:last-child::after {
+  display: none;
+}
+
+.assembly-card b {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.assembly-card span {
+  display: block;
+  font-size: 12px;
+  color: #596783;
+  line-height: 1.6;
+}
+
+.assembly-card.result {
+  background: linear-gradient(180deg, #fff4dc, #fffdf7);
+}
+
+.shape-card {
+  padding: 18px 16px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.88);
+  box-shadow: 0 10px 0 rgba(38,41,52,0.05);
+}
+
+.shape-card h4 {
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.shape-card p {
+  font-size: 13px;
+  color: #4b5771;
+  line-height: 1.6;
+}
+
+.micro-explain {
+  margin: -4px 0 14px;
+  font-size: 13px;
+  color: #5c6780;
+  line-height: 1.6;
+}
+
+.priority-stack {
+  position: relative;
+  display: grid;
+  gap: 10px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.stack-layer {
+  padding: 18px;
+  border-radius: 24px;
+  border: var(--stroke);
+  box-shadow: 0 8px 0 rgba(38,41,52,0.06);
+  text-align: center;
+}
+
+.stack-layer b {
+  display: block;
+  font-size: 20px;
+  font-family: "ZCOOL KuaiLe", cursive;
+}
+
+.stack-layer span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #53617b;
+}
+
+.layer-system { background: #ffe2ec; }
+.layer-user { background: #dff4ff; }
+.layer-prefill { background: #fff2c9; }
+
+.priority-note {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: #e6ffe9;
+  font-size: 12px;
+  font-weight: 800;
+  margin: 0 auto;
+}
+
+.six-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.six-card {
+  padding: 18px 14px;
+  border-radius: 22px;
+  border: var(--stroke);
+  background: #fff;
+  text-align: center;
+}
+
+.six-card b {
+  display: block;
+  margin-bottom: 6px;
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: 24px;
+}
+
+.six-card span {
+  display: block;
+  font-size: 12px;
+  color: #596784;
+}
+
+.loop-track {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  overflow-x: auto;
+}
+
+.loop-step {
+  min-width: 150px;
+  padding: 16px 12px;
+  border-radius: 20px;
+  border: var(--stroke);
+  background: #fff;
+  text-align: center;
+}
+
+.loop-step b {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 16px;
+}
+
+.loop-step span {
+  font-size: 12px;
+  color: #5c6882;
+}
+
+.quad-board {
+  position: relative;
+  padding: 30px 22px 22px 62px;
+  border-radius: 30px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(245,248,255,0.96));
+}
+
+.quad-board::before,
+.quad-board::after {
+  content: "";
+  position: absolute;
+  background: var(--line);
+}
+
+.quad-board::before {
+  left: 50%;
+  top: 20px;
+  bottom: 20px;
+  width: 4px;
+  transform: translateX(-50%);
+}
+
+.quad-board::after {
+  left: 24px;
+  right: 20px;
+  top: 50%;
+  height: 4px;
+  transform: translateY(-50%);
+}
+
+.axis-y,
+.axis-x {
+  position: absolute;
+  font-size: 12px;
+  font-weight: 800;
+  color: #40506c;
+}
+
+.axis-y {
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  transform-origin: left top;
+}
+
+.axis-x {
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+}
+
+.quad-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.quad-cell {
+  min-height: 160px;
+  padding: 18px 16px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: #fff;
+}
+
+.quad-cell h4 {
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+
+.quad-cell p {
+  font-size: 13px;
+  color: #53617b;
+  line-height: 1.6;
+}
+
+.stack-four {
+  display: grid;
+  gap: 12px;
+}
+
+.ctx-layer {
+  position: relative;
+  min-height: 98px;
+  padding: 18px 18px 18px 156px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ctx-layer b {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  width: 118px;
+  height: 52px;
+  margin-top: -26px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  border: var(--stroke);
+  font-family: "Noto Sans SC", "PingFang SC", sans-serif;
+  font-weight: 900;
+  font-size: 16px;
+  background: var(--gold);
+}
+
+.ctx-layer span {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  color: #41506b;
+}
+
+.weight-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.weight-card {
+  padding: 18px 16px;
+  border-radius: 22px;
+  border: var(--stroke);
+  text-align: center;
+}
+
+.weight-card b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+
+.weight-card span {
+  font-size: 12px;
+  color: #56627d;
+}
+
+.fail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fail-card {
+  padding: 16px 14px;
+  border-radius: 20px;
+  border: var(--stroke);
+  background: #fff;
+  text-align: center;
+}
+
+.fail-card b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 16px;
+}
+
+.fail-card span {
+  font-size: 12px;
+  color: #586580;
+}
+
+.blueprint {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.blue-card {
+  padding: 18px 14px;
+  border-radius: 22px;
+  border: var(--stroke);
+  background: #fff;
+  text-align: center;
+}
+
+.blue-card b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 17px;
+}
+
+.blue-card span {
+  display: block;
+  font-size: 12px;
+  color: #58637d;
+}
+
+.signal-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.signal-pill {
+  padding: 14px 12px;
+  border-radius: 18px;
+  border: var(--stroke);
+  text-align: center;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  color: #48536b;
+}
+
+.workflow-board {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.workflow-card {
+  position: relative;
+  padding: 52px 14px 18px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: #fff;
+  box-shadow: 0 10px 0 rgba(38,41,52,0.05);
+}
+
+.workflow-card::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -16px;
+  width: 18px;
+  height: 18px;
+  margin-top: -9px;
+  background: var(--line);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.workflow-card:last-child::after { display: none; }
+
+.workflow-card b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 18px;
+}
+
+.workflow-card span {
+  display: block;
+  font-size: 12px;
+  color: #58637d;
+  line-height: 1.55;
+}
+
+.workflow-time {
+  position: absolute;
+  left: 14px;
+  top: 14px;
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: #fff2c9;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.closing-board {
+  padding: 22px;
+  border-radius: 30px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, #fff4dc, #fffdf7);
+  box-shadow: 0 10px 0 rgba(38,41,52,0.06);
+}
+
+.closing-board p {
+  font-size: 15px;
+  color: #35425b;
+  line-height: 1.8;
+}
+
+@media (max-width: 1080px) {
+  .hero-wrap,
+  .flow-track,
+  .triple-grid,
+  .double-grid,
+  .role-grid,
+  .prompt-assembly,
+  .four-grid,
+  .five-grid,
+  .six-board,
+  .weight-strip,
+  .fail-grid,
+  .blueprint,
+  .signal-row,
+  .workflow-board {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hero-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-graphic {
+    min-height: 560px;
+  }
+
+  .flow-arrow { display: none; }
+}
+
+@media (max-width: 720px) {
+  .page-shell,
+  .timeline {
+    width: min(100% - 20px, 1280px);
+  }
+
+  .site-header { padding-top: 26px; }
+
+  .chapter-band,
+  .chapter-body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .chapter-band {
+    grid-template-columns: 1fr;
+  }
+
+  .triple-grid,
+  .double-grid,
+  .role-grid,
+  .prompt-assembly,
+  .four-grid,
+  .five-grid,
+  .six-board,
+  .weight-strip,
+  .fail-grid,
+  .blueprint,
+  .signal-row,
+  .workflow-board {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-graphic { min-height: 620px; }
+  .scene-road { width: 310px; height: 92px; }
+  .node-1 { left: 16px; top: 148px; }
+  .node-2 { left: 108px; top: 94px; }
+  .node-3 { left: 206px; top: 144px; }
+  .node-4 { left: 300px; top: 100px; }
+  .node-5 { left: 76px; top: 296px; }
+  .node-6 { left: 182px; top: 342px; }
+  .node-7 { right: 14px; top: 280px; }
+  .scene-note { left: 16px; right: 16px; width: auto; bottom: 20px; }
+  .scene-cloud, .scene-star { display: none; }
+}
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell hero-wrap">
+      <div class="hero-copy">
+        <div class="hero-badge">PE &amp; Context · Visual Map</div>
+        <h1 class="site-title">PE &amp; Context<br><em>流程图</em></h1>
+        <div class="hero-note">
+          一页只看图，不读长文。顺着 7 个模块走完，你就知道 Prompt 和 Context 到底怎么落到产品里。
+        </div>
+        <div class="hero-meta">
+          <div class="meta-pill">🧠 7个模块</div>
+          <div class="meta-pill">🎯 1条真实调用链</div>
+          <div class="meta-pill">🧭 1个策略：先定目标，再补 Context</div>
+        </div>
+      </div>
+
+      <div class="hero-graphic" aria-hidden="true">
+        <div class="hero-scene">
+          <div class="scene-cloud cloud-a"></div>
+          <div class="scene-cloud cloud-b"></div>
+          <div class="scene-star"></div>
+          <div class="scene-road"></div>
+          <div class="scene-node node-1"><b>01</b><span>模型原理</span></div>
+          <div class="scene-node node-2"><b>02</b><span>Prompt 分类</span></div>
+          <div class="scene-node node-3"><b>03</b><span>结构与调试</span></div>
+          <div class="scene-node node-4"><b>04</b><span>四象限</span></div>
+          <div class="scene-node node-5"><b>05</b><span>Context</span></div>
+          <div class="scene-node node-6"><b>06</b><span>System Prompt</span></div>
+          <div class="scene-node node-7"><b>07</b><span>PM 工作流</span></div>
+          <div class="scene-note">
+            <strong>这一页看完要记住</strong>
+            <ul>
+              <li>先定目标</li>
+              <li>再控上下文</li>
+              <li>最后做成资产</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="timeline-shell">
+    <nav class="timeline" aria-label="章节导航">
+      <a class="t-link active" href="#overview"><span class="t-dot">🗺️</span><span class="t-name">总览</span><span class="t-stage">一图看全局</span></a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#ch1"><span class="t-dot">🧠</span><span class="t-name">CH01</span><span class="t-stage">模型原理</span></a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#ch2"><span class="t-dot">🧩</span><span class="t-name">CH02</span><span class="t-stage">Prompt 分类</span></a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#ch3"><span class="t-dot">🛠️</span><span class="t-name">CH03</span><span class="t-stage">结构与调试</span></a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#ch4"><span class="t-dot">🧭</span><span class="t-name">CH04</span><span class="t-stage">四个象限</span></a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#ch5"><span class="t-dot">📚</span><span class="t-name">CH05</span><span class="t-stage">Context</span></a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#ch6"><span class="t-dot">📐</span><span class="t-name">CH06</span><span class="t-stage">System Prompt</span></a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#ch7"><span class="t-dot">🚦</span><span class="t-name">CH07</span><span class="t-stage">PM 工作流</span></a>
+    </nav>
+  </div>
+
+  <main class="page-shell main">
+    <section class="chapter" id="overview">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #6f84d1, #93a7f1);" data-num="00">
+        <div class="chapter-icon">🗺️</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">OVERVIEW</div>
+          <h2 class="chapter-title">不是 7 个点，是 1 条控制链</h2>
+          <div class="chapter-sub">模型怎么想，Prompt 怎么控，Context 怎么喂，最后谁来交付。</div>
+          <div class="chapter-meta">
+            <span class="chip">模型层</span>
+            <span class="chip">策略层</span>
+            <span class="chip">架构层</span>
+            <span class="chip">交付层</span>
+          </div>
+        </div>
+      </div>
+      <div class="chapter-body">
+        <div class="panel-row">
+          <article class="mini-card warm"><h4>模型层</h4><p>会预测，不会自动懂你。</p></article>
+          <article class="mini-card cool"><h4>控制层</h4><p>拆角色，别混着写。</p></article>
+          <article class="mini-card love"><h4>结构层</h4><p>先搭框，再微调。</p></article>
+          <article class="mini-card lav"><h4>判断层</h4><p>先判象限，再选法。</p></article>
+          <article class="mini-card grow"><h4>上下文层</h4><p>谁先出现，谁更重要。</p></article>
+          <article class="mini-card peach"><h4>交付层</h4><p>版本化，测试化，流程化。</p></article>
+        </div>
+        <div class="diagram-board">
+          <div class="section-label">小案例：客服助手一轮回答怎么形成</div>
+          <div class="workflow-board">
+            <div class="workflow-card" style="background:#fff2c9;"><div class="workflow-time">输入</div><b>用户问</b><span>退款多久到账？</span></div>
+            <div class="workflow-card" style="background:#ffd8e6;"><div class="workflow-time">规则</div><b>System</b><span>口吻、边界、格式</span></div>
+            <div class="workflow-card" style="background:#dff2ff;"><div class="workflow-time">记忆</div><b>History</b><span>用户上轮在追问物流</span></div>
+            <div class="workflow-card" style="background:#ece5ff;"><div class="workflow-time">知识</div><b>Knowledge</b><span>退款规则被注入</span></div>
+            <div class="workflow-card" style="background:#dff7e9;"><div class="workflow-time">输出</div><b>回答</b><span>清晰答复 + 下一步</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="ch1">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #f187b5, #f6a6c8);" data-num="01">
+        <div class="chapter-icon">🧠</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">CHAPTER 01</div>
+          <h2 class="chapter-title">模型为什么需要 Prompt</h2>
+          <div class="chapter-sub">模型会生成，但不会自动知道你要什么。</div>
+        </div>
+      </div>
+      <div class="chapter-body">
+        <div class="section-label">图解：输入不是文字，而是一条预测链</div>
+        <div class="diagram-board">
+          <div class="flow-track">
+            <div class="flow-step" style="background:#fff2c9;"><b>文字</b><span>人类自然语言</span></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-step" style="background:#dff2ff;"><b>Token</b><span>切成片段序列</span></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-step" style="background:#ece5ff;"><b>预测</b><span>继续猜下一个</span></div>
+            <div class="flow-arrow"></div>
+            <div class="flow-step" style="background:#dff7ea;"><b>输出</b><span>再拼成答案</span></div>
+          </div>
+        </div>
+        <div class="triple-grid">
+          <article class="shape-card">
+            <h4>预测机器</h4>
+            <p>定义：LLM 本质是 next-token prediction。<br>重要性：它不会自动理解你的真实业务目标。</p>
+            <small>例：同样是“退款”，不加上下文时可能答政策，也可能答流程。</small>
+          </article>
+          <article class="shape-card">
+            <h4>训练三阶段</h4>
+            <p>预训练：学语言和世界知识。<br>SFT：学会按指令回答。<br>RLHF：更贴近人类偏好。</p>
+            <small>作用：把“能生成”一步步训练到“更会按要求生成”。</small>
+          </article>
+          <article class="shape-card">
+            <h4>Prompt 作用</h4>
+            <p>发生环节：模型调用时。<br>作用：设目标、加约束、控格式。</p>
+            <small>例：要求“先给结论，再引用规则，再给下一步建议”。</small>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="ch2">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #4aa793, #84d1b7);" data-num="02">
+        <div class="chapter-icon">🧩</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">CHAPTER 02</div>
+          <h2 class="chapter-title">三种 Prompt 各管一层</h2>
+          <div class="chapter-sub">规则归规则，输入归输入，输出起点单独管。</div>
+        </div>
+      </div>
+      <div class="chapter-body">
+        <div class="double-grid">
+          <div class="diagram-board">
+            <div class="section-label">图解：Prompt 优先级堆栈</div>
+            <div class="priority-stack">
+              <div class="stack-layer layer-system"><b>System</b><span>规则、角色、边界</span></div>
+              <div class="priority-note">最稳的一层</div>
+              <div class="stack-layer layer-user"><b>User</b><span>当次问题和意图</span></div>
+              <div class="stack-layer layer-prefill"><b>Pre-fill</b><span>锁住开头和格式</span></div>
+            </div>
+          </div>
+          <div class="role-grid">
+            <article class="mini-card love role-card">
+              <h4>System</h4>
+              <p>定义：长期规则层</p>
+              <small>作用：控制角色、边界、口吻。</small>
+              <div class="role-tags">
+                <span class="role-tag">角色设定</span>
+                <span class="role-tag">回复口吻</span>
+                <span class="role-tag">风险边界</span>
+              </div>
+              <div class="role-note">常放：长期稳定规则，例如“只能依据官方规则回答”。</div>
+              <div class="role-note">别放：用户这次临时问题，否则每轮都要重写一遍。</div>
+              <div class="role-note">例：你是电商客服，只能依据平台售后政策回复用户。</div>
+            </article>
+            <article class="mini-card cool role-card">
+              <h4>User</h4>
+              <p>定义：当次输入层</p>
+              <small>作用：说明本轮问题和补充条件。</small>
+              <div class="role-tags">
+                <span class="role-tag">用户诉求</span>
+                <span class="role-tag">订单状态</span>
+                <span class="role-tag">临时变量</span>
+              </div>
+              <div class="role-note">常放：本轮问题、业务变量、用户补充信息。</div>
+              <div class="role-note">别放：长期固定规则，这些应该提前沉到 System。</div>
+              <div class="role-note">例：我的订单已签收，退款多久到账？订单号是 12345。</div>
+            </article>
+            <article class="mini-card warm role-card">
+              <h4>Pre-fill</h4>
+              <p>定义：输出起跑线</p>
+              <small>作用：锁 JSON、标题或列表格式。</small>
+              <div class="role-tags">
+                <span class="role-tag">JSON 骨架</span>
+                <span class="role-tag">固定标题</span>
+                <span class="role-tag">列表开头</span>
+              </div>
+              <div class="role-note">常放：输出模板、结构骨架、固定开头。</div>
+              <div class="role-note">别放：复杂业务规则，Pre-fill 更适合控形式，不适合管策略。</div>
+              <div class="role-note">例：请按“结论 / 依据 / 下一步”输出，首句先给明确结论。</div>
+            </article>
+          </div>
+        </div>
+        <div class="diagram-board">
+          <div class="section-label">图解：一轮调用到底怎么拼</div>
+          <div class="micro-explain">稳定规则放 System，变化信息放 User，固定输出骨架放 Pre-fill。拆对了，模型才稳定。</div>
+          <div class="prompt-assembly">
+            <div class="assembly-card" style="background:#ffe2ec;">
+              <b>System</b>
+              <span>你是售后客服，只能依据平台规则答复，语气清晰克制。</span>
+            </div>
+            <div class="assembly-card" style="background:#dff4ff;">
+              <b>User</b>
+              <span>订单已签收，用户问“退款多久到账”，并补充了订单号。</span>
+            </div>
+            <div class="assembly-card" style="background:#fff2c9;">
+              <b>Pre-fill</b>
+              <span>请按“结论 / 依据 / 下一步”三段输出，先给直接答案。</span>
+            </div>
+            <div class="assembly-card result">
+              <b>结果</b>
+              <span>回复既稳又像产品定义的样子，不容易跑偏。</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="ch3">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #ffae7a, #ffd4bf);" data-num="03">
+        <div class="chapter-icon">🛠️</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">CHAPTER 03</div>
+          <h2 class="chapter-title">好 Prompt 不是灵感，是结构</h2>
+          <div class="chapter-sub">先搭积木，再用样例和调试把它磨顺。</div>
+        </div>
+      </div>
+      <div class="chapter-body">
+        <div class="diagram-board">
+          <div class="section-label">图解：六要素拼装台</div>
+          <div class="six-board">
+            <div class="six-card"><b>角色</b><span>你是谁</span><small>例：你是售后客服助手。</small></div>
+            <div class="six-card"><b>任务</b><span>做什么</span><small>例：判断用户诉求并给回复。</small></div>
+            <div class="six-card"><b>背景</b><span>补信息</span><small>例：订单已签收 3 天，支持原路退款。</small></div>
+            <div class="six-card"><b>示例</b><span>给样板</span><small>例：参考一条优秀客服回复作为风格样本。</small></div>
+            <div class="six-card"><b>约束</b><span>划边界</span><small>例：不能承诺超权限补偿，不能编造规则。</small></div>
+            <div class="six-card"><b>格式</b><span>定输出</span><small>例：按“结论 / 依据 / 下一步”三段输出。</small></div>
+          </div>
+        </div>
+        <div class="diagram-board">
+          <div class="section-label">图解：调试不是重写，是单变量循环</div>
+          <div class="loop-track">
+            <div class="loop-step"><b>写初版</b><span>先跑起来</span></div>
+            <div class="flow-arrow"></div>
+            <div class="loop-step"><b>找问题</b><span>一次只看一处</span></div>
+            <div class="flow-arrow"></div>
+            <div class="loop-step"><b>改一处</b><span>别全盘重写</span></div>
+            <div class="flow-arrow"></div>
+            <div class="loop-step"><b>再测试</b><span>留版本记录</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="ch4">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #7e95ea, #b4c0fb);" data-num="04">
+        <div class="chapter-icon">🧭</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">CHAPTER 04</div>
+          <h2 class="chapter-title">先判象限，再选策略</h2>
+          <div class="chapter-sub">先判断“谁知道”，再决定“怎么问”。</div>
+        </div>
+      </div>
+      <div class="chapter-body">
+        <div class="quad-board">
+          <div class="axis-y">我知不知道</div>
+          <div class="axis-x">AI知不知道</div>
+          <div class="quad-grid">
+            <div class="quad-cell" style="background:#fff3cd;"><h4>双方都知道</h4><p>直接用，但要验。</p><small>例：总结一条公开的退款政策。</small></div>
+            <div class="quad-cell" style="background:#dff4ff;"><h4>AI知道 我不知道</h4><p>拿来探索，但别全信。</p><small>例：先让它解释“向量检索”这类陌生概念，再自行核对。</small></div>
+            <div class="quad-cell" style="background:#ffe0d3;"><h4>我知道 AI不知道</h4><p>主动喂业务背景。</p><small>例：把你们公司的 SLA、规则、黑名单条件贴进去。</small></div>
+            <div class="quad-cell" style="background:#ece5ff;"><h4>双方都不知道</h4><p>接工具，别瞎编。</p><small>例：预测新策略效果时，先接数据、搜索或实验，而不是让模型硬猜。</small></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="ch5">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #f29b72, #f6bb8d);" data-num="05">
+        <div class="chapter-icon">📚</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">CHAPTER 05</div>
+          <h2 class="chapter-title">Context 不是一句话，是整个舞台</h2>
+          <div class="chapter-sub">看见什么、先看什么、能看多久，都会影响回答。</div>
+        </div>
+      </div>
+      <div class="chapter-body">
+        <div class="double-grid">
+          <div class="diagram-board">
+            <div class="section-label">图解：Context 四层</div>
+            <div class="micro-explain">专业一点说，Context 是模型在当前推理时刻能够看到的全部信息集合。</div>
+            <div class="stack-four">
+              <div class="ctx-layer"><b>System</b><span>固定规则层，优先级最高</span><small>例：回答必须先给结论，再引用平台规则。</small></div>
+              <div class="ctx-layer"><b>History</b><span>对话记忆层，负责承接上下轮</span><small>例：上一轮用户已经说过“订单已签收”。</small></div>
+              <div class="ctx-layer"><b>Retrieved</b><span>外部知识层，通常由 RAG 注入</span><small>例：召回“退款到账 T+1 到 T+3”的规则片段。</small></div>
+              <div class="ctx-layer"><b>User</b><span>当前任务层，驱动本轮输出</span><small>例：用户本轮真正问的是“退款多久到账”。</small></div>
+            </div>
+          </div>
+          <div class="diagram-board">
+            <div class="section-label">图解：位置即权重</div>
+            <div class="weight-strip">
+              <div class="weight-card" style="background:#fff2c9;"><b>开头</b><span>规则最稳</span></div>
+              <div class="weight-card" style="background:#ece5ff;"><b>中间</b><span>最易被淹没</span></div>
+              <div class="weight-card" style="background:#dff7ea;"><b>结尾</b><span>最新最显眼</span></div>
+            </div>
+            <div class="section-label" style="margin-top:18px;">四种失效</div>
+            <div class="fail-grid">
+              <div class="fail-card"><b>污染</b><span>错误信息往后扩散</span></div>
+              <div class="fail-card"><b>稀释</b><span>重点被噪音淹没</span></div>
+              <div class="fail-card"><b>溢出</b><span>超窗后前文失忆</span></div>
+              <div class="fail-card"><b>漂移</b><span>慢慢偏离原约束</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="ch6">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #e982b1, #f5a0c7);" data-num="06">
+        <div class="chapter-icon">📐</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">CHAPTER 06</div>
+          <h2 class="chapter-title">System Prompt 要像规格，不像随手文案</h2>
+          <div class="chapter-sub">不是一句“你是助手”，而是一份可上线的规格。</div>
+        </div>
+      </div>
+      <div class="chapter-body">
+        <div class="diagram-board">
+          <div class="section-label">图解：一个合格的 System Prompt 应该包含什么</div>
+          <div class="micro-explain">System Prompt 更像长期控制规格，负责把产品要求稳定地翻译成模型规则。</div>
+          <div class="blueprint">
+            <div class="blue-card"><b>角色</b><span>你是谁</span><small>例：你是售后客服助手，不是万能顾问。</small></div>
+            <div class="blue-card"><b>能力</b><span>你会什么</span><small>例：可解释规则、提炼诉求、给下一步建议。</small></div>
+            <div class="blue-card"><b>约束</b><span>你别做什么</span><small>例：不能编造订单状态，不能承诺额外赔付。</small></div>
+            <div class="blue-card"><b>格式</b><span>怎么输出</span><small>例：固定输出“结论 / 依据 / 动作建议”。</small></div>
+            <div class="blue-card"><b>兜底</b><span>不会时怎么办</span><small>例：信息不足时先追问订单号或转人工。</small></div>
+          </div>
+        </div>
+        <div class="signal-row">
+          <div class="signal-pill">要分模块</div>
+          <div class="signal-pill">要有版本和测试</div>
+          <div class="signal-pill">要能和工程对接</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="ch7">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #6f84d1, #93a7f1);" data-num="07">
+        <div class="chapter-icon">🚦</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">CHAPTER 07</div>
+          <h2 class="chapter-title">PM 的 Prompt 工作流是一条产品流水线</h2>
+          <div class="chapter-sub">不是最后补一句，而是从验证到迭代都要管。</div>
+        </div>
+      </div>
+      <div class="chapter-body">
+        <div class="diagram-board">
+          <div class="section-label">图解：Prompt 在产品全周期里出现在哪里</div>
+          <div class="workflow-board">
+            <div class="workflow-card">
+              <div class="workflow-time">D1-D2</div>
+              <b>需求</b>
+              <span>先试可行性</span>
+              <small>产出物：问题清单、demo prompt、可行性判断。</small>
+            </div>
+            <div class="workflow-card">
+              <div class="workflow-time">D3-D4</div>
+              <b>设计</b>
+              <span>同步写草稿</span>
+              <small>产出物：System Prompt v0.1、变量表、few-shot 样例。</small>
+            </div>
+            <div class="workflow-card">
+              <div class="workflow-time">D5-D7</div>
+              <b>开发</b>
+              <span>对齐注入位</span>
+              <small>产出物：Prompt 拼装逻辑、Context 注入位、接口字段约定。</small>
+            </div>
+            <div class="workflow-card">
+              <div class="workflow-time">D8-D9</div>
+              <b>测试</b>
+              <span>做四类验收</span>
+              <small>产出物：正常 / 边界 / 对抗 / 降级用例，评测结果表。</small>
+            </div>
+            <div class="workflow-card">
+              <div class="workflow-time">持续</div>
+              <b>上线后</b>
+              <span>看真实对话再改</span>
+              <small>产出物：坏案例库、版本日志、优化 backlog。</small>
+            </div>
+          </div>
+        </div>
+        <div class="closing-board">
+          <div class="section-label">最后记 3 件事</div>
+          <div class="signal-row">
+            <div class="signal-pill">会写 Prompt 还不够</div>
+            <div class="signal-pill">还得会管 Context</div>
+            <div class="signal-pill">最后要做成团队资产</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+const navLinks = Array.from(document.querySelectorAll(".t-link"));
+const sections = navLinks
+  .map((link) => document.querySelector(link.getAttribute("href")))
+  .filter(Boolean);
+
+const setActive = (id) => {
+  navLinks.forEach((link) => {
+    link.classList.toggle("active", link.getAttribute("href") === `#${id}`);
+  });
+};
+
+const observer = new IntersectionObserver((entries) => {
+  const visible = entries
+    .filter((entry) => entry.isIntersecting)
+    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+  if (visible) setActive(visible.target.id);
+}, {
+  rootMargin: "-22% 0px -58% 0px",
+  threshold: [0.18, 0.4, 0.68]
+});
+
+sections.forEach((section) => observer.observe(section));
+
+navLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    setActive(link.getAttribute("href").slice(1));
+  });
+});
+</script>
+</body>
+</html>
