@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG全框架案例客服助手</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&amp;family=ZCOOL+KuaiLe&amp;family=Noto+Sans+SC:wght@300;400;500;700;900&amp;family=Noto+Serif+SC:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky-top: #7d93ea;
+  --sky-mid: #a9baf8;
+  --sky-bottom: #edf2ff;
+  --paper: #fffdf7;
+  --paper-soft: #f7f6ff;
+  --ink: #262934;
+  --ink-soft: #61708d;
+  --line: #262934;
+  --pink: #f187b5;
+  --yellow: #ffd56c;
+  --teal: #4aa793;
+  --mint: #89d7be;
+  --blue: #6f84d1;
+  --lav: #e9e0ff;
+  --peach: #ffd9c5;
+  --red: #ff8d86;
+  --gold: #ffec9e;
+  --serif: "Noto Serif SC", serif;
+  --stroke: 2.5px solid var(--line);
+  --shadow-flat: 0 10px 0 rgba(38, 41, 52, 0.12);
+  --shadow-card: 0 14px 0 rgba(38, 41, 52, 0.08);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255, 255, 255, 0.44), transparent 15%),
+    radial-gradient(circle at 88% 10%, rgba(255, 213, 108, 0.18), transparent 16%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 34%, var(--sky-bottom) 72%, #f6f9ff 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 20% 84%, rgba(255, 255, 255, 0.22) 0 7px, transparent 8px) 0 0 / 36px 36px,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent 26%);
+  opacity: 0.3;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 78% 22%, rgba(255, 255, 255, 0.26), transparent 32%),
+    radial-gradient(ellipse at 14% 92%, rgba(255, 255, 255, 0.24), transparent 28%);
+}
+
+a { color: inherit; text-decoration: none; }
+
+.page-shell {
+  width: min(1280px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.site-header {
+  position: relative;
+  overflow: hidden;
+  padding: 38px 0 22px;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  right: -70px;
+  top: -80px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.16);
+  opacity: 0.3;
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  left: -30px;
+  bottom: 14px;
+  width: 180px;
+  height: 180px;
+  border-radius: 42px;
+  border: var(--stroke);
+  transform: rotate(14deg);
+  background: rgba(255, 255, 255, 0.14);
+  opacity: 0.22;
+}
+
+.hero-wrap {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 550px);
+  gap: 34px;
+  align-items: center;
+}
+
+.hero-copy {
+  padding: 10px 0 6px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  margin-bottom: 18px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow-flat);
+  transform: rotate(-2deg);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+}
+
+.site-title {
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: clamp(40px, 6.2vw, 86px);
+  line-height: 0.98;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+  max-width: 680px;
+  text-wrap: balance;
+}
+
+.site-title em {
+  font-style: normal;
+  color: var(--pink);
+  text-shadow: 4px 4px 0 rgba(255, 255, 255, 0.34);
+}
+
+.hero-note {
+  max-width: 620px;
+  padding: 18px 22px;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.08);
+  font-size: 16px;
+  color: #2a3851;
+  text-wrap: pretty;
+}
+
+.hero-meta {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 8px 0 rgba(38, 41, 52, 0.06);
+  font-size: 13px;
+  font-weight: 700;
+  color: #33415d;
+}
+
+.meta-pill:nth-child(2) { transform: rotate(-2deg); }
+.meta-pill:nth-child(3) { transform: rotate(2deg); }
+
+.hero-graphic {
+  position: relative;
+  min-height: 450px;
+  border-radius: 42px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, #8ea3f5 0%, #d8e0ff 100%);
+  box-shadow: 0 16px 0 rgba(38, 41, 52, 0.1);
+  overflow: hidden;
+}
+
+.hero-graphic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 32% 14%, rgba(255, 255, 255, 0.42), transparent 18%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 34%);
+}
+
+.hero-graphic::after {
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -70px;
+  height: 150px;
+  border-top: var(--stroke);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.hero-scene {
+  position: absolute;
+  inset: 0;
+}
+
+.scene-cloud,
+.scene-arrow,
+.scene-card,
+.scene-bubble,
+.scene-post,
+.scene-mascot,
+.scene-star {
+  position: absolute;
+}
+
+.scene-cloud {
+  width: 130px;
+  height: 54px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow:
+    28px -18px 0 0 rgba(255, 255, 255, 0.88),
+    28px -18px 0 2.5px var(--line),
+    76px 0 0 0 rgba(255, 255, 255, 0.88),
+    76px 0 0 2.5px var(--line);
+}
+
+.cloud-a { left: 36px; top: 54px; }
+.cloud-b { right: 110px; top: 86px; transform: scale(0.84); }
+
+.scene-card {
+  width: 164px;
+  min-height: 108px;
+  padding: 18px 16px;
+  border-radius: 26px;
+  border: var(--stroke);
+  box-shadow: var(--shadow-flat);
+  background: var(--paper);
+}
+
+.scene-card h3 {
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: 24px;
+  margin-bottom: 4px;
+}
+
+.scene-card p {
+  font-size: 13px;
+  color: #4d5972;
+  line-height: 1.45;
+}
+
+.card-a {
+  left: 42px;
+  top: 146px;
+  background: #fff0c4;
+  transform: rotate(-7deg);
+}
+
+.card-b {
+  left: 222px;
+  top: 176px;
+  background: #ffd8e6;
+  transform: rotate(3deg);
+}
+
+.card-c {
+  right: 56px;
+  top: 170px;
+  background: #dff7ea;
+  transform: rotate(-4deg);
+}
+
+.scene-arrow {
+  width: 126px;
+  height: 12px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.scene-arrow::after {
+  content: "";
+  position: absolute;
+  right: -12px;
+  top: -10px;
+  width: 28px;
+  height: 32px;
+  background: var(--line);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.arrow-a {
+  left: 176px;
+  top: 132px;
+  transform: rotate(10deg);
+}
+
+.arrow-b {
+  left: 372px;
+  top: 206px;
+  width: 112px;
+  transform: rotate(-6deg);
+}
+
+.scene-post {
+  left: 52px;
+  bottom: 50px;
+  width: 300px;
+  padding: 18px 18px 16px;
+  border-radius: 30px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow-flat);
+}
+
+.scene-post::before {
+  content: "框架主线";
+  position: absolute;
+  left: 22px;
+  top: -16px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: var(--yellow);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.scene-post ul {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.scene-post li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #33415d;
+}
+
+.scene-post li::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: var(--stroke);
+  background: var(--pink);
+  flex: none;
+}
+
+.scene-bubble {
+  right: 44px;
+  bottom: 56px;
+  width: 142px;
+  height: 142px;
+  border-radius: 38px;
+  border: var(--stroke);
+  background: #fef7db;
+  box-shadow: var(--shadow-flat);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 16px;
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: 28px;
+  line-height: 1.15;
+  color: #374057;
+}
+
+.scene-bubble small {
+  display: block;
+  margin-top: 8px;
+  font-family: "Noto Sans SC", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.scene-mascot {
+  right: 196px;
+  bottom: 46px;
+  width: 112px;
+  height: 164px;
+}
+
+.scene-mascot .head,
+.scene-mascot .body,
+.scene-mascot .arm,
+.scene-mascot .leg {
+  position: absolute;
+  border: var(--stroke);
+}
+
+.scene-mascot .head {
+  left: 24px;
+  top: 0;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: #ffd7c8;
+}
+
+.scene-mascot .head::before,
+.scene-mascot .head::after {
+  content: "";
+  position: absolute;
+  top: 24px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.scene-mascot .head::before { left: 16px; }
+.scene-mascot .head::after { right: 16px; }
+
+.scene-mascot .body {
+  left: 10px;
+  top: 54px;
+  width: 92px;
+  height: 74px;
+  border-radius: 32px;
+  background: var(--teal);
+}
+
+.scene-mascot .arm {
+  width: 54px;
+  height: 22px;
+  border-radius: 999px;
+  background: #ffd7c8;
+  top: 74px;
+}
+
+.scene-mascot .arm.left {
+  left: -12px;
+  transform: rotate(22deg);
+}
+
+.scene-mascot .arm.right {
+  right: -12px;
+  transform: rotate(-18deg);
+}
+
+.scene-mascot .leg {
+  width: 22px;
+  height: 54px;
+  border-radius: 999px;
+  background: #ffd7c8;
+  top: 116px;
+}
+
+.scene-mascot .leg.left { left: 28px; }
+.scene-mascot .leg.right { right: 28px; }
+
+.scene-star {
+  width: 90px;
+  height: 90px;
+  left: 264px;
+  top: 56px;
+  background: var(--line);
+  clip-path: polygon(50% 0%, 62% 28%, 100% 18%, 74% 50%, 100% 82%, 62% 72%, 50% 100%, 38% 72%, 0% 82%, 26% 50%, 0% 18%, 38% 28%);
+  transform: rotate(-16deg);
+}
+
+.scene-star::before {
+  content: "";
+  position: absolute;
+  inset: 7px;
+  background: var(--yellow);
+  clip-path: inherit;
+}
+
+.timeline-shell {
+  position: sticky;
+  top: 0;
+  z-index: 60;
+  padding: 0 0 18px;
+  background: linear-gradient(180deg, rgba(125, 147, 234, 0.86) 0%, rgba(125, 147, 234, 0) 100%);
+}
+
+.timeline {
+  width: min(1280px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 12px 0 rgba(38, 41, 52, 0.1);
+}
+
+.timeline::-webkit-scrollbar { display: none; }
+
+.t-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 104px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 28px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.t-link:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.t-link.active {
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 0 rgba(38, 41, 52, 0.06);
+}
+
+.t-dot {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: var(--paper);
+  font-size: 20px;
+}
+
+.t-link.active .t-dot {
+  background: var(--blue);
+  color: #fff;
+}
+
+.t-name {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.t-stage {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.74;
+}
+
+.t-line {
+  flex: 0 0 30px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(38, 41, 52, 0.16);
+}
+
+.main {
+  padding: 12px 0 72px;
+}
+
+.chapter {
+  position: relative;
+  scroll-margin-top: 104px;
+  margin-bottom: 24px;
+  overflow: hidden;
+  border-radius: 38px;
+  border: var(--stroke);
+  background: var(--paper);
+  box-shadow: var(--shadow-card);
+}
+
+.chapter::before {
+  content: "";
+  position: absolute;
+  right: 28px;
+  top: 24px;
+  width: 104px;
+  height: 24px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.44);
+  transform: rotate(8deg);
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+.chapter-band {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 22px;
+  align-items: flex-start;
+  padding: 34px 38px;
+  color: #fff;
+  border-bottom: var(--stroke);
+  overflow: hidden;
+}
+
+.chapter-band::before {
+  content: "";
+  position: absolute;
+  right: 32px;
+  top: 18px;
+  width: 138px;
+  height: 138px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.24);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.chapter-band::after {
+  content: attr(data-num);
+  position: absolute;
+  right: -4px;
+  top: -22px;
+  font-size: 160px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -8px;
+  opacity: 0.14;
+}
+
+.chapter-icon {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--line);
+  font-size: 42px;
+  z-index: 1;
+}
+
+.chapter-copy { position: relative; z-index: 1; }
+
+.chapter-seq {
+  margin-bottom: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  opacity: 0.76;
+}
+
+.chapter-title {
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: clamp(28px, 4vw, 40px);
+  line-height: 1.05;
+}
+
+.chapter-sub {
+  margin-top: 14px;
+  max-width: 680px;
+  padding: 12px 16px;
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.16);
+  font-size: 14.5px;
+  line-height: 1.75;
+  font-family: var(--serif);
+}
+
+.chapter-meta {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.chapter-body {
+  padding: 30px 34px 34px;
+  display: grid;
+  gap: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.54), rgba(248, 248, 255, 0.94));
+}
+
+.section-title,
+.mini-title,
+.board-title,
+.pill-title {
+  font-family: "ZCOOL KuaiLe", cursive;
+}
+
+.section-title {
+  font-size: 22px;
+  margin-bottom: 18px;
+  color: var(--line);
+}
+
+.summary-board {
+  padding: 22px 24px;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(252, 250, 241, 0.88));
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.06);
+}
+
+.summary-board p {
+  font-size: 15px;
+  color: #344157;
+}
+
+.summary-board strong {
+  color: #1f2635;
+}
+
+.panel-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.panel-row::-webkit-scrollbar { display: none; }
+
+.mini-card {
+  position: relative;
+  flex: 1;
+  min-width: 190px;
+  padding: 18px 16px 16px;
+  border-radius: 28px;
+  border: var(--stroke);
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.08);
+  overflow: hidden;
+}
+
+.mini-card::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 52px;
+  height: 14px;
+  border-radius: 999px;
+  transform: translateX(-50%) rotate(-4deg);
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.mini-card h4 {
+  margin-top: 6px;
+  margin-bottom: 8px;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.mini-card p,
+.mini-card li {
+  font-size: 13px;
+  color: #47536b;
+}
+
+.mini-card ul {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.mini-card li::before {
+  content: "•";
+  margin-right: 6px;
+  color: var(--line);
+}
+
+.mini-card.warm { background: #fff2c9; }
+.mini-card.cool { background: #dff2ff; }
+.mini-card.love { background: #ffd8e6; }
+.mini-card.grow { background: #dff7e9; }
+.mini-card.lav { background: #ece5ff; }
+.mini-card.peach { background: #ffe0d3; }
+
+.grid-2,
+.grid-3,
+.grid-4 {
+  display: grid;
+  gap: 14px;
+}
+
+.grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+.info-card {
+  padding: 18px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.05);
+}
+
+.info-card h4 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.info-card p,
+.info-card li {
+  color: #48546e;
+  font-size: 14px;
+}
+
+.info-card ul {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.info-card li::before {
+  content: "";
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  margin-right: 8px;
+  border-radius: 50%;
+  border: var(--stroke);
+  background: var(--pink);
+  vertical-align: middle;
+}
+
+.pipeline-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.pipeline-card {
+  position: relative;
+  padding: 18px 16px 16px;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: var(--paper);
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.06);
+}
+
+.pipeline-card::before {
+  content: attr(data-step);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  margin-bottom: 12px;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: var(--gold);
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.pipeline-card h4 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.pipeline-card .role {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.84);
+  font-size: 13px;
+  color: #41506a;
+}
+
+.compare-board {
+  padding: 20px;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(239, 243, 255, 0.92));
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.06);
+}
+
+.compare-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.compare-col {
+  padding: 18px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.84);
+}
+
+.compare-col h4 {
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.compare-col ul {
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.compare-col li {
+  font-size: 14px;
+  color: #4b5771;
+}
+
+.compare-col li::before {
+  content: "→";
+  margin-right: 8px;
+  font-weight: 900;
+  color: var(--line);
+}
+
+.interview-board {
+  padding: 22px;
+  border-radius: 30px;
+  border: var(--stroke);
+  background: linear-gradient(180deg, #fff4dc, #fffdf7);
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.06);
+}
+
+.interview-board h3 {
+  margin-bottom: 12px;
+  font-size: 24px;
+}
+
+.interview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.answer-card {
+  padding: 18px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.answer-card h4 {
+  margin-bottom: 10px;
+  font-size: 17px;
+}
+
+.answer-card p {
+  font-size: 14px;
+  color: #47536b;
+}
+
+.flash-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.flash-card {
+  padding: 18px 18px 16px;
+  border-radius: 26px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.06);
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.flash-num {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: var(--yellow);
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.flash-card p {
+  font-size: 15px;
+  color: #39455c;
+}
+
+.footer-note {
+  padding: 22px 24px;
+  border-radius: 30px;
+  border: var(--stroke);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: 0 10px 0 rgba(38, 41, 52, 0.06);
+  text-align: center;
+  color: #445168;
+}
+
+.footer-note strong {
+  color: #212938;
+}
+
+@media (max-width: 1080px) {
+  .hero-wrap,
+  .grid-4,
+  .grid-3,
+  .pipeline-grid,
+  .interview-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .hero-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-graphic {
+    min-height: 520px;
+  }
+
+  .scene-post {
+    width: 260px;
+  }
+}
+
+@media (max-width: 720px) {
+  .page-shell,
+  .timeline {
+    width: min(100% - 20px, 1280px);
+  }
+
+  .site-header {
+    padding-top: 28px;
+  }
+
+  .chapter-band,
+  .chapter-body {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .chapter-band {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4,
+  .pipeline-grid,
+  .compare-grid,
+  .interview-grid,
+  .flash-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-graphic {
+    min-height: 620px;
+  }
+
+  .card-a {
+    left: 20px;
+    top: 140px;
+  }
+
+  .card-b {
+    left: auto;
+    right: 30px;
+    top: 214px;
+  }
+
+  .card-c {
+    right: 26px;
+    top: 352px;
+  }
+
+  .arrow-a,
+  .arrow-b,
+  .scene-star,
+  .scene-mascot {
+    display: none;
+  }
+
+  .scene-post {
+    left: 18px;
+    right: 18px;
+    width: auto;
+    bottom: 34px;
+  }
+
+  .scene-bubble {
+    right: 18px;
+    width: 120px;
+    height: 120px;
+    font-size: 22px;
+  }
+}
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="page-shell hero-wrap">
+      <div class="hero-copy">
+        <div class="hero-badge">🧠 AI PM · RAG Full Framework</div>
+        <h1 class="site-title">RAG<em>全框架</em><br>案例客服助手</h1>
+        <div class="hero-note">
+          这页不是零散概念堆砌，而是把从 LLM 到 RAG 落地的完整框架，
+          嵌进一个现实业务案例里去讲。你能同时看到模型边界、知识库构建、
+          在线检索生成，以及产品经理该怎么把这条链路真正跑起来。
+        </div>
+        <div class="hero-meta">
+          <div class="meta-pill">📦 CloudSync · 200人SaaS公司</div>
+          <div class="meta-pill">🧭 主线：LLM → RAG → Pipeline A-H</div>
+          <div class="meta-pill">🎯 用途：方案梳理 / 产品沟通 / 业务复盘</div>
+        </div>
+      </div>
+
+      <div class="hero-graphic" aria-hidden="true">
+        <div class="hero-scene">
+          <div class="scene-cloud cloud-a"></div>
+          <div class="scene-cloud cloud-b"></div>
+          <div class="scene-star"></div>
+          <div class="scene-card card-a">
+            <h3>LLM</h3>
+            <p>先搞清楚模型能力边界，别一上来就神化。</p>
+          </div>
+          <div class="scene-card card-b">
+            <h3>RAG</h3>
+            <p>回答前先找依据，让“会说”变成“说得准”。</p>
+          </div>
+          <div class="scene-card card-c">
+            <h3>Pipeline</h3>
+            <p>A-H 每一步都要有输入、标准和责任人。</p>
+          </div>
+          <div class="scene-arrow arrow-a"></div>
+          <div class="scene-arrow arrow-b"></div>
+          <div class="scene-post">
+            <ul>
+              <li>先看清模型边界，再决定为什么必须接 RAG</li>
+              <li>离线阶段把知识库底座搭稳，别把脏数据送进系统</li>
+              <li>在线阶段让 query、检索、生成和兜底真正跑通</li>
+            </ul>
+          </div>
+          <div class="scene-mascot">
+            <div class="head"></div>
+            <div class="body"></div>
+            <div class="arm left"></div>
+            <div class="arm right"></div>
+            <div class="leg left"></div>
+            <div class="leg right"></div>
+          </div>
+          <div class="scene-bubble">业务能用<small>不是只会说术语</small></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="timeline-shell">
+    <nav class="timeline" aria-label="章节导航">
+      <a class="t-link active" href="#chapter-overview">
+        <span class="t-dot">🧭</span>
+        <span class="t-name">主线</span>
+        <span class="t-stage">一图看懂</span>
+      </a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#chapter-llm">
+        <span class="t-dot">🧠</span>
+        <span class="t-name">LLM</span>
+        <span class="t-stage">能力边界</span>
+      </a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#chapter-rag">
+        <span class="t-dot">📚</span>
+        <span class="t-name">RAG</span>
+        <span class="t-stage">为什么需要</span>
+      </a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#chapter-case">
+        <span class="t-dot">🧩</span>
+        <span class="t-name">案例</span>
+        <span class="t-stage">真实业务</span>
+      </a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#chapter-offline">
+        <span class="t-dot">🏗️</span>
+        <span class="t-name">离线</span>
+        <span class="t-stage">A-F 构建</span>
+      </a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#chapter-online">
+        <span class="t-dot">🔍</span>
+        <span class="t-name">在线</span>
+        <span class="t-stage">G-H 检索</span>
+      </a>
+      <div class="t-line"></div>
+      <a class="t-link" href="#chapter-advanced">
+        <span class="t-dot">⚙️</span>
+        <span class="t-name">优化</span>
+        <span class="t-stage">生成与高级 RAG</span>
+      </a>
+    </nav>
+  </div>
+
+  <main class="page-shell main">
+    <section class="chapter" id="chapter-overview">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #6f84d1, #93a7f1);" data-num="01">
+        <div class="chapter-icon">🧭</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">Overview</div>
+          <h2 class="chapter-title">这套全框架到底在讲什么</h2>
+          <div class="chapter-sub">
+            不是单独讲“大模型原理”或者“RAG 定义”，而是在搭一条完整产品链路：
+            先理解模型能力边界，再解释为什么要引入 RAG，最后把 RAG 拆成可以落地执行、可以分工协作、可以长期运营的产品流程。
+          </div>
+          <div class="chapter-meta">
+            <span class="chip">主线一：模型能做什么</span>
+            <span class="chip">主线二：RAG 怎么补模型短板</span>
+            <span class="chip">主线三：AI PM 如何把链路跑通</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter-body">
+        <div>
+          <div class="section-title">故事线 · 先搭脑图再记细节</div>
+          <div class="panel-row">
+            <article class="mini-card warm">
+              <h4>模型层</h4>
+              <p>先讲 LLM、预训练、微调、泛化、涌现和提示词工程，让你知道模型为什么“看起来懂”。</p>
+            </article>
+            <article class="mini-card love">
+              <h4>底座层</h4>
+              <p>开始进入 RAG，上半段重点是知识库构建，把离线流程拆成 Pipeline A-F。</p>
+            </article>
+            <article class="mini-card cool">
+              <h4>在线层</h4>
+              <p>进入在线阶段，补上 Query 改写、多路召回、重排、生成策略和复杂问题处理。</p>
+            </article>
+            <article class="mini-card grow">
+              <h4>最后的落点</h4>
+              <p>不是背术语，而是能说清“每一步为什么存在、要盯什么指标、产品经理负责什么”。</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="summary-board">
+          <p><strong>一句话记忆：</strong>整套框架其实都在回答同一个问题：当大模型本身不够新、不够准、不够稳时，AI 产品经理应该如何用 RAG 把“能回答”升级成“有依据、可落地、可迭代”的产品系统。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="chapter-llm">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #f187b5, #f6a6c8);" data-num="02">
+        <div class="chapter-icon">🧠</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">LLM &amp; Prompt</div>
+          <h2 class="chapter-title">先别急着谈 RAG，先知道模型的边界</h2>
+          <div class="chapter-sub">
+            只有搞清楚 LLM 的训练路径、能力来源和固有局限，后面才知道为什么单靠提示词不够，为什么超长上下文只是过渡，为什么 RAG 会成为更现实的工程方案。
+          </div>
+          <div class="chapter-meta">
+            <span class="chip">预训练 + 微调</span>
+            <span class="chip">泛化能力 + 涌现能力</span>
+            <span class="chip">提示词工程不是万能药</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter-body">
+        <div class="grid-3">
+          <article class="info-card">
+            <h4>AI 能力链路</h4>
+            <ul>
+              <li>人工智能 → 机器学习 → 深度学习 → LLM → 生成式 AI</li>
+              <li>预训练：无标注大数据学习语言规律</li>
+              <li>微调 SFT：用指令或标签数据定向强化能力</li>
+            </ul>
+          </article>
+          <article class="info-card">
+            <h4>模型为什么强</h4>
+            <ul>
+              <li>泛化：能迁移到没见过的相似任务</li>
+              <li>涌现：规模上来后会出现少样本学习、指令跟随、复杂推理</li>
+              <li>“像懂”本质是统计规律在起作用</li>
+            </ul>
+          </article>
+          <article class="info-card">
+            <h4>模型为什么不够</h4>
+            <ul>
+              <li>时效性差，训练完就开始过期</li>
+              <li>专业知识不稳定，容易幻觉</li>
+              <li>安全、隐私、合规边界天然敏感</li>
+            </ul>
+          </article>
+        </div>
+
+        <div>
+          <div class="section-title">提示词工程 · 能救场，但不能包办全局</div>
+          <div class="panel-row">
+            <article class="mini-card warm">
+              <h4>系统提示词</h4>
+              <p>负责定边界、定角色、定输出格式，像系统里的“隐藏规则”。</p>
+            </article>
+            <article class="mini-card cool">
+              <h4>用户提示词</h4>
+              <p>负责提问题、补背景、给约束，决定本轮对话怎么走。</p>
+            </article>
+            <article class="mini-card lav">
+              <h4>有效提示词习惯</h4>
+              <p>结构化表达、少歧义、正向提问、一步一步思考、少量样本 ICL。</p>
+            </article>
+            <article class="mini-card peach">
+              <h4>超长上下文</h4>
+              <p>优点是简单直接，缺点是不可扩展、受窗口限制、成本高，不适合长期做底座。</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="chapter-rag">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #4aa793, #84d1b7);" data-num="03">
+        <div class="chapter-icon">📚</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">Why RAG</div>
+          <h2 class="chapter-title">RAG 不是炫技，是在给回答找依据</h2>
+          <div class="chapter-sub">
+            RAG 的核心不是让模型突然变聪明，而是让模型在回答前先“看资料”。所以它解决的不是语言能力，而是真实性、时效性、专业性和私有知识可用性。
+          </div>
+          <div class="chapter-meta">
+            <span class="chip">先检索，再生成</span>
+            <span class="chip">降低幻觉</span>
+            <span class="chip">补足领域知识</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter-body">
+        <div class="compare-board">
+          <div class="section-title">为什么只靠模型不够</div>
+          <div class="compare-grid">
+            <div class="compare-col">
+              <h4>只靠 LLM</h4>
+              <ul>
+                <li>回答速度可以很快，但“依据”不稳定</li>
+                <li>训练语料过期后，时效性问题会直接暴露</li>
+                <li>进入垂直领域后，越专业越容易胡说</li>
+              </ul>
+            </div>
+            <div class="compare-col">
+              <h4>接入 RAG</h4>
+              <ul>
+                <li>先查知识库，再让模型组织语言</li>
+                <li>私有数据、实时知识、专业文档能进入回答链路</li>
+                <li>回答不只是流畅，还要可追溯、可验证</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-board">
+          <p><strong>RAG 的一句话版本：</strong>用户提问后，系统先在知识库里找相关内容，再把这些内容拼进提示词，最后交给 LLM 生成回答。也就是 `问题 → 检索 → 提示词构建 → LLM → 回答`。</p>
+        </div>
+
+        <div class="grid-4">
+          <article class="info-card">
+            <h4>解决幻觉</h4>
+            <p>让回答优先依赖外部资料，而不是只靠模型“猜”。</p>
+          </article>
+          <article class="info-card">
+            <h4>解决时效</h4>
+            <p>知识库更新比重训模型快得多，更适合业务迭代。</p>
+          </article>
+          <article class="info-card">
+            <h4>解决专业性</h4>
+            <p>垂直行业文档能直接接入，减少通用模型的偏差。</p>
+          </article>
+          <article class="info-card">
+            <h4>解决私有知识</h4>
+            <p>企业内部信息可以通过检索进入回答，而不是公开训练。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="chapter-case">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #e7a948, #ffd56c);" data-num="04">
+        <div class="chapter-icon">🧩</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">Real Case</div>
+          <h2 class="chapter-title">现实案例：CloudSync 的客服知识助手</h2>
+          <div class="chapter-sub">
+            CloudSync 是一家 200 人规模的 SaaS 公司。Support 团队每天要处理大量产品问答、版本说明、权限配置和历史工单，
+            但知识分散在帮助中心、发布公告、内部 SOP 和聊天记录里，导致响应慢、口径乱、新人上手难。
+          </div>
+          <div class="chapter-meta">
+            <span class="chip">📦 业务场景：客服与工单协同</span>
+            <span class="chip">👥 核心角色：Support / PM / 算法 / 后端</span>
+            <span class="chip">🎯 目标：更快、更准、更一致</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter-body">
+        <div class="summary-board">
+          <p><strong>为什么这个案例值得放进来：</strong>它不是一个纯技术实验，而是一个非常典型的企业知识型场景。用户问的问题看起来像一句自然语言，但背后可能同时牵涉版本、权限、套餐、功能说明和历史处理规则。如果只靠模型记忆，答案会很快过期；如果只靠关键词检索，又很难理解真实意图，所以必须把完整框架放进去跑。</p>
+        </div>
+
+        <div class="grid-4">
+          <article class="info-card">
+            <h4>首响越来越慢</h4>
+            <p>帮助中心、版本公告、SOP 和历史工单分散在不同系统里，Support 每次都要来回翻资料，首响时间从 4 小时拉到 11 小时。</p>
+          </article>
+          <article class="info-card">
+            <h4>回复口径不一致</h4>
+            <p>同一个问题，不同同事给出的解释和处理建议不一样，客户会怀疑平台到底有没有统一标准。</p>
+          </article>
+          <article class="info-card">
+            <h4>新版本一发布就过期</h4>
+            <p>功能名称、入口位置、套餐规则一变，旧知识马上失效，单靠模型记忆根本跟不上。</p>
+          </article>
+          <article class="info-card">
+            <h4>新人培训成本高</h4>
+            <p>新同事知道文档在哪，不代表知道该看哪一段，更不代表能把零散信息组合成一句可回复的话。</p>
+          </article>
+        </div>
+
+        <div>
+          <div class="section-title">把这套框架塞进这个项目，会发生什么</div>
+          <div class="panel-row">
+            <article class="mini-card warm">
+              <h4>只靠 LLM 不够</h4>
+              <p>模型可以把话说顺，但遇到版本差异、套餐约束和内部规则时，回答会越来越像“听起来对”，不一定真的对。</p>
+            </article>
+            <article class="mini-card love">
+              <h4>A-F 要做什么</h4>
+              <p>先把帮助中心、版本公告、内部 SOP、历史工单和处理规则接成知识库底座，保证资料干净、可解析、可分块、可检索。</p>
+            </article>
+            <article class="mini-card cool">
+              <h4>G-H 要做什么</h4>
+              <p>用户说“客户开不了单”，系统不能直接搜字面，而要先判断是权限、套餐、网络还是版本差异，再拆成可检索的子问题。</p>
+            </article>
+            <article class="mini-card grow">
+              <h4>最终交付什么</h4>
+              <p>不是一个聊天框，而是一套带知识更新、检索增强、回答兜底、人工转接和效果监控的业务链路。</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="compare-board">
+          <div class="section-title">这类项目真正盯的不是“会不会回答”，而是这 4 个结果</div>
+          <div class="compare-grid">
+            <div class="compare-col">
+              <h4>业务目标</h4>
+              <ul>
+                <li>把首响时间拉回目标线</li>
+                <li>提高回复一致性，减少反复转接</li>
+                <li>缩短新人独立处理问题的时间</li>
+                <li>让版本更新后的知识同步更快</li>
+              </ul>
+            </div>
+            <div class="compare-col">
+              <h4>必须同步设计的机制</h4>
+              <ul>
+                <li>知识边界清单和数据源优先级</li>
+                <li>版本更新后的知识同步 SOP</li>
+                <li>badcase 收集、重排和回归验证机制</li>
+                <li>回答不确定时的人转人兜底链路</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="chapter-offline">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #ffae7a, #ffd4bf);" data-num="05">
+        <div class="chapter-icon">🏗️</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">Offline Build</div>
+          <h2 class="chapter-title">知识库构建 A-F：RAG 的底座在离线阶段</h2>
+          <div class="chapter-sub">
+            这里开始进入真正的工程落地。重点不是背 A-F 名字，而是知道每一步的目标、风险、质量标准，以及 AI 产品经理要盯哪些关键决策。
+          </div>
+          <div class="chapter-meta">
+            <span class="chip">数据采集</span>
+            <span class="chip">文档解析</span>
+            <span class="chip">清洗 / 分块 / 向量化 / 索引</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter-body">
+        <div class="pipeline-grid">
+          <article class="pipeline-card" data-step="A">
+            <h4>原始数据采集</h4>
+            <p>先定义知识边界、确认数据来源、量级和优先级，搞清楚什么该接、什么不能接。</p>
+            <div class="role">产品经理职责：基于业务场景定义知识边界，协调业务方、数据方和法务一起确定可用源。</div>
+          </article>
+          <article class="pipeline-card" data-step="B">
+            <h4>文档解析</h4>
+            <p>把 PDF、Word、网页、表格等材料转成可处理文本。重点不只是“能解析”，而是“解析后是否能用”。</p>
+            <div class="role">产品经理职责：定义文档解析质量标准，判断关键格式是否完整保真。</div>
+          </article>
+          <article class="pipeline-card" data-step="C">
+            <h4>数据清洗</h4>
+            <p>做冗余剔除、格式统一、敏感信息过滤、异常处理，保证数据真正适合进入检索系统。</p>
+            <div class="role">产品经理职责：制定清洗规则，平衡自动化与抽检，不让脏数据污染答案。</div>
+          </article>
+          <article class="pipeline-card" data-step="D">
+            <h4>文本分割</h4>
+            <p>核心原则是语义完整、长度适配、保留必要重叠。切太碎丢上下文，切太大检索又不准。</p>
+            <div class="role">产品经理职责：定义 chunk 策略，优先按自然语义边界切，而不是机械按字数硬切。</div>
+          </article>
+          <article class="pipeline-card" data-step="E">
+            <h4>文本向量化</h4>
+            <p>把文本变成 embedding，让系统能按语义相似度找内容。模型是否适配行业术语非常关键。</p>
+            <div class="role">产品经理职责：关注向量模型和业务语义的适配度，不是只看“大家都用什么”。</div>
+          </article>
+          <article class="pipeline-card" data-step="F">
+            <h4>向量索引构建</h4>
+            <p>让大规模向量能快速近似检索。常见有树状、哈希、图、聚类、关键词等方案。</p>
+            <div class="role">产品经理职责：根据速度、精度、数据量、部署成本做选择，理解向量库与关系库分工。</div>
+          </article>
+        </div>
+
+        <div class="summary-board">
+          <p><strong>这部分最容易被忽略的结论：</strong>很多人以为 RAG 效果差是“模型不行”，但实际问题常常发生在离线阶段。数据边界没定义清楚、解析质量差、清洗规则松、chunk 切得乱、embedding 模型不适配，都会让后面答案出问题。</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="chapter-online">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #7e95ea, #b4c0fb);" data-num="06">
+        <div class="chapter-icon">🔍</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">Online Retrieval</div>
+          <h2 class="chapter-title">在线阶段 G-H：用户问一句，系统背后要做很多事</h2>
+          <div class="chapter-sub">
+            真正上线后，用户给出的往往不是标准问题，而是含糊问题、跨领域问题、多轮追问问题。所以在线阶段的关键，不是“查一下”，而是先理解问题，再组织更聪明的检索路径。
+          </div>
+          <div class="chapter-meta">
+            <span class="chip">Query 改写</span>
+            <span class="chip">多路查询 / 分解</span>
+            <span class="chip">重排与阈值验证</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter-body">
+        <div class="grid-2">
+          <article class="info-card">
+            <h4>Pipeline G：Query 改写</h4>
+            <ul>
+              <li>识别意图类型、领域细分类、多轮追问关系</li>
+              <li>做语义强化、歧义消解、上下文补全、意图拆解</li>
+              <li>典型例子：“Java 怎么泡”要先判断是语言还是咖啡</li>
+            </ul>
+          </article>
+          <article class="info-card">
+            <h4>Pipeline H：多路查询</h4>
+            <ul>
+              <li>把复杂问题拆成多个可检索子问题</li>
+              <li>做多路召回、重排和阈值选择</li>
+              <li>最终不是分数越高越好，而是和真实场景适配度更高</li>
+            </ul>
+          </article>
+        </div>
+
+        <div>
+          <div class="section-title">Query 增强 6 种方法</div>
+          <div class="panel-row">
+            <article class="mini-card warm">
+              <h4>语义强化</h4>
+              <p>补充同义表达和关键业务词，让查询更完整。</p>
+            </article>
+            <article class="mini-card love">
+              <h4>歧义消解</h4>
+              <p>解决多义词、代词不明、领域切换问题，避免检索跑偏。</p>
+            </article>
+            <article class="mini-card cool">
+              <h4>上下文补全</h4>
+              <p>把多轮对话里的隐含信息补回这一轮 query。</p>
+            </article>
+            <article class="mini-card grow">
+              <h4>意图拆解</h4>
+              <p>复杂问题先拆层级，再分别检索，不让单次召回负担过重。</p>
+            </article>
+            <article class="mini-card lav">
+              <h4>术语适配</h4>
+              <p>把行业黑话、缩写、别名映射到系统能理解的标准表达。</p>
+            </article>
+            <article class="mini-card peach">
+              <h4>约束强化</h4>
+              <p>把时间、地点、品牌、型号、身份等约束补得更明确。</p>
+            </article>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chapter" id="chapter-advanced">
+      <div class="chapter-band" style="background: linear-gradient(135deg, #f29b72, #f6bb8d);" data-num="07">
+        <div class="chapter-icon">⚙️</div>
+        <div class="chapter-copy">
+          <div class="chapter-seq">Optimization</div>
+          <h2 class="chapter-title">检索优化、生成优化，还有更高级的 RAG 形态</h2>
+          <div class="chapter-sub">
+            到了这里，重点开始从“能跑通”升级成“能跑得稳、跑得久”。RAG 不是“查一下文档然后扔给模型”这么简单，真正好用的系统，检索和生成都要做分层优化，复杂问题还要拆、补、跳、校验。
+          </div>
+          <div class="chapter-meta">
+            <span class="chip">结构化检索 vs 语义检索</span>
+            <span class="chip">生成环节 5 步</span>
+            <span class="chip">Graph RAG / Speculative RAG</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter-body">
+        <div class="compare-board">
+          <div class="section-title">检索系统不是一件事，是两件事</div>
+          <div class="compare-grid">
+            <div class="compare-col">
+              <h4>结构化检索</h4>
+              <ul>
+                <li>按字段、条件、规则、SQL 精确筛选</li>
+                <li>适合岗位、城市、价格、型号这类硬约束</li>
+                <li>强在明确，不强在语义理解</li>
+              </ul>
+            </div>
+            <div class="compare-col">
+              <h4>语义 / 混合检索</h4>
+              <ul>
+                <li>按 embedding 找相近内容</li>
+                <li>再配合关键词召回、重排提升准确性</li>
+                <li>适合问答和非结构化知识场景</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <article class="info-card">
+            <h4>RAG 降成本思路</h4>
+            <p>把 chunk 设计成多级结构，先用二级片段粗召回，再映射回更完整的一级片段。这样既能减少 token，又能保住语义完整度。</p>
+          </article>
+          <article class="info-card">
+            <h4>生成环节 5 个流程</h4>
+            <p>提示词构建、LLM 生成执行、内容优化与后处理、多轮上下文管理、复杂问题处理策略，缺一块都容易出短板。</p>
+          </article>
+          <article class="info-card">
+            <h4>复杂问题处理</h4>
+            <p>问题分解、层次化推理、多跳检索，先拿宏观，再补细节，不靠一次检索硬撑到底。</p>
+          </article>
+        </div>
+
+        <div class="panel-row">
+          <article class="mini-card cool">
+            <h4>Graph RAG</h4>
+            <p>不是只查相似文本，而是查实体关系和结构化关联。更适合股权穿透、政策合规、科研追踪、根因分析。</p>
+          </article>
+          <article class="mini-card grow">
+            <h4>Speculative RAG</h4>
+            <p>让更专门的 RAG 草稿器并行产出多个候选答案，再由通用模型评估接收，适合知识密集型问题。</p>
+          </article>
+          <article class="mini-card lav">
+            <h4>这两者给你的启发</h4>
+            <p>RAG 正在从“先检索再生成”走向更复杂的协同架构，未来重点会是多结构知识和多阶段推理。</p>
+          </article>
+        </div>
+        <div class="footer-note">
+          <strong>如果把这一页当成产品方案来看：</strong>
+          前半段回答“为什么要做”，中间案例回答“这套东西做给谁、解决什么”，后半段 A-H 回答“怎么落地”，最后的优化部分回答“怎么把它持续跑下去”。
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script>
+const navLinks = Array.from(document.querySelectorAll(".t-link"));
+const sections = navLinks
+  .map((link) => document.querySelector(link.getAttribute("href")))
+  .filter(Boolean);
+
+const setActive = (id) => {
+  navLinks.forEach((link) => {
+    link.classList.toggle("active", link.getAttribute("href") === `#${id}`);
+  });
+};
+
+const observer = new IntersectionObserver((entries) => {
+  const visible = entries
+    .filter((entry) => entry.isIntersecting)
+    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+  if (visible) {
+    setActive(visible.target.id);
+  }
+}, {
+  rootMargin: "-25% 0px -55% 0px",
+  threshold: [0.15, 0.35, 0.6]
+});
+
+sections.forEach((section) => observer.observe(section));
+
+navLinks.forEach((link) => {
+  link.addEventListener("click", () => {
+    const targetId = link.getAttribute("href").slice(1);
+    setActive(targetId);
+  });
+});
+</script>
+</body>
+</html>

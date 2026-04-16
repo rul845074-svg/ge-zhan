@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI产品全流程图 · 小焦的历险记</title>
+<link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@300;400;500;700;900&family=Noto+Serif+SC:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sky-top: #7d93ea;
+  --sky-mid: #a9baf8;
+  --sky-bottom: #dfe7ff;
+  --paper: #fffdf7;
+  --paper-soft: #f8f8ff;
+  --ink: #262934;
+  --ink-soft: #61708d;
+  --line: #262934;
+  --pink: #f187b5;
+  --yellow: #ffd56c;
+  --teal: #4aa793;
+  --mint: #84d1b7;
+  --blue: #6f84d1;
+  --lav: #e6dcff;
+  --peach: #ffd4bf;
+  --serif: "Noto Serif SC", serif;
+  --stroke: 2.5px solid var(--line);
+  --shadow-flat: 0 10px 0 rgba(38,41,52,0.12);
+  --shadow-card: 0 14px 0 rgba(38,41,52,0.08);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  line-height: 1.6;
+  background:
+    radial-gradient(circle at 10% 16%, rgba(255,255,255,0.42), transparent 16%),
+    radial-gradient(circle at 84% 10%, rgba(255,215,108,0.18), transparent 18%),
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 34%, var(--sky-bottom) 72%, #eef3ff 100%);
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 20% 82%, rgba(255,255,255,0.2) 0 7px, transparent 8px) 0 0 / 36px 36px,
+    linear-gradient(180deg, rgba(255,255,255,0.22), transparent 24%);
+  opacity: 0.26;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(ellipse at 78% 18%, rgba(255,255,255,0.26), transparent 34%),
+    radial-gradient(ellipse at 14% 92%, rgba(255,255,255,0.24), transparent 28%);
+}
+
+::selection { background: rgba(255,213,108,0.5); }
+
+button { font: inherit; color: inherit; }
+
+.site-header {
+  position: relative;
+  overflow: hidden;
+  padding: 40px 24px 26px;
+}
+
+.site-header::before {
+  content: "";
+  position: absolute;
+  width: 260px;
+  height: 260px;
+  right: -70px;
+  top: -70px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  border: var(--stroke);
+  opacity: 0.32;
+}
+
+.site-header::after {
+  content: "";
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  left: -40px;
+  bottom: 18px;
+  border-radius: 44px;
+  background: rgba(255,255,255,0.16);
+  border: var(--stroke);
+  transform: rotate(16deg);
+  opacity: 0.24;
+}
+
+.header-shell {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(430px, 560px);
+  gap: 36px;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-copy {
+  position: relative;
+  z-index: 2;
+  padding: 14px 0 8px;
+}
+
+.header-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  margin-bottom: 20px;
+  background: var(--paper);
+  border: var(--stroke);
+  border-radius: 999px;
+  box-shadow: var(--shadow-flat);
+  transform: rotate(-2deg);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+
+.site-title {
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: clamp(44px, 7vw, 92px);
+  line-height: 0.98;
+  letter-spacing: 2px;
+  margin-bottom: 18px;
+  max-width: 700px;
+  text-wrap: balance;
+}
+
+.site-title em {
+  font-style: normal;
+  color: var(--pink);
+  text-shadow: 4px 4px 0 rgba(255,255,255,0.35);
+}
+
+.site-sub {
+  max-width: 590px;
+  padding: 18px 22px;
+  border-radius: 30px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.65);
+  box-shadow: 0 10px 0 rgba(38,41,52,0.08);
+  font-size: 16px;
+  color: #24324a;
+  text-wrap: pretty;
+}
+
+.site-meta {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: 720px;
+}
+
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.82);
+  box-shadow: 0 8px 0 rgba(38,41,52,0.06);
+  font-size: 13px;
+  font-weight: 600;
+  color: #33415d;
+}
+
+.meta-pill:nth-child(2) { transform: rotate(-2deg); }
+.meta-pill:nth-child(3) { transform: rotate(2deg); }
+
+.hero-graphic {
+  position: relative;
+  min-height: 438px;
+  border: var(--stroke);
+  border-radius: 44px;
+  background: linear-gradient(180deg, #89a0f1 0%, #c8d4ff 100%);
+  box-shadow: 0 16px 0 rgba(38,41,52,0.1);
+  overflow: hidden;
+}
+
+.hero-graphic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 32% 14%, rgba(255,255,255,0.42), transparent 18%),
+    linear-gradient(180deg, rgba(255,255,255,0.08), transparent 34%);
+}
+
+.hero-graphic::after {
+  content: "";
+  position: absolute;
+  left: -4%;
+  right: -4%;
+  bottom: -70px;
+  height: 148px;
+  border-top: var(--stroke);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  background: rgba(255,255,255,0.16);
+}
+
+.hero-scene {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 620px;
+  height: 440px;
+  transform: translate(-50%, -50%);
+}
+
+.scene-splash,
+.scene-star,
+.scene-pencil,
+.scene-arc,
+.scene-screen,
+.scene-box,
+.scene-bike,
+.scene-basket,
+.scene-rider,
+.scene-leaf,
+.scene-flower {
+  position: absolute;
+}
+
+.scene-splash {
+  width: 88px;
+  height: 116px;
+  left: 26px;
+  top: 112px;
+  background: var(--pink);
+  border: var(--stroke);
+  border-radius: 22px 22px 28px 24px;
+  transform: rotate(-24deg);
+}
+
+.scene-splash::before {
+  content: "";
+  position: absolute;
+  width: 84px;
+  height: 22px;
+  left: -2px;
+  top: -18px;
+  border: var(--stroke);
+  border-radius: 999px;
+  background: #90a5f2;
+}
+
+.scene-splash::after {
+  content: "";
+  position: absolute;
+  width: 64px;
+  height: 32px;
+  left: -28px;
+  top: 2px;
+  background: var(--line);
+  border-radius: 60% 20% 70% 30%;
+  transform: rotate(-16deg);
+}
+
+.scene-star {
+  width: 128px;
+  height: 128px;
+  left: 132px;
+  top: 72px;
+  transform: rotate(-18deg);
+  z-index: 2;
+  background: var(--line);
+  clip-path: polygon(50% 0%, 62% 28%, 100% 18%, 74% 50%, 100% 82%, 62% 72%, 50% 100%, 38% 72%, 0% 82%, 26% 50%, 0% 18%, 38% 28%);
+}
+
+.scene-star::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  background: var(--yellow);
+  clip-path: inherit;
+}
+
+.scene-pencil {
+  width: 314px;
+  height: 60px;
+  left: 118px;
+  top: 152px;
+  border: var(--stroke);
+  border-radius: 20px;
+  background: var(--blue);
+  transform: rotate(-30deg);
+  z-index: 3;
+}
+
+.scene-pencil::before {
+  content: "";
+  position: absolute;
+  left: -28px;
+  top: -2px;
+  width: 30px;
+  height: 60px;
+  border: var(--stroke);
+  border-right: none;
+  border-radius: 18px 0 0 18px;
+  background: var(--yellow);
+}
+
+.scene-pencil::after {
+  content: "";
+  position: absolute;
+  right: -58px;
+  top: -2px;
+  width: 58px;
+  height: 60px;
+  background: linear-gradient(90deg, #f8f9ff 0%, #f8f9ff 74%, #111 74%, #111 100%);
+  border: var(--stroke);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.scene-arc {
+  width: 240px;
+  height: 240px;
+  right: 26px;
+  top: 18px;
+  border: 28px solid var(--pink);
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  transform: rotate(-4deg);
+  z-index: 1;
+}
+
+.scene-arc::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border: 32px solid var(--line);
+  border-left-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.scene-arc::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  right: 22px;
+  top: 42px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: var(--stroke);
+  box-shadow:
+    -86px -28px 0 -1px var(--line),
+    -78px -24px 0 6px var(--paper),
+    -118px 36px 0 -1px var(--line),
+    -108px 26px 0 6px var(--paper);
+}
+
+.scene-screen {
+  width: 102px;
+  height: 90px;
+  left: 316px;
+  top: 58px;
+  border: var(--stroke);
+  border-radius: 22px;
+  background: var(--paper);
+  transform: rotate(12deg);
+  z-index: 4;
+}
+
+.scene-screen::before,
+.scene-screen::after {
+  content: "";
+  position: absolute;
+  background: var(--teal);
+  border: var(--stroke);
+  border-radius: 50%;
+}
+
+.scene-screen::before {
+  width: 26px;
+  height: 42px;
+  left: 22px;
+  top: 22px;
+  transform: rotate(-18deg);
+}
+
+.scene-screen::after {
+  width: 24px;
+  height: 38px;
+  right: 22px;
+  top: 24px;
+  transform: rotate(24deg);
+}
+
+.scene-box {
+  width: 136px;
+  height: 88px;
+  left: 308px;
+  top: 156px;
+  border: var(--stroke);
+  border-radius: 16px;
+  background: var(--yellow);
+  z-index: 3;
+}
+
+.scene-box::before {
+  content: "";
+  position: absolute;
+  left: 56px;
+  top: 0;
+  width: 20px;
+  height: 88px;
+  background: var(--paper);
+}
+
+.scene-box::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  top: -10px;
+  width: 32px;
+  height: 16px;
+  border: var(--stroke);
+  border-radius: 8px 8px 0 0;
+  background: var(--yellow);
+  box-shadow: 64px 0 0 -2px var(--yellow), 64px 0 0 0 var(--line);
+}
+
+.scene-rider {
+  z-index: 5;
+}
+
+.scene-rider span {
+  position: absolute;
+  display: block;
+}
+
+.rider-left {
+  left: 98px;
+  bottom: 26px;
+  width: 226px;
+  height: 220px;
+}
+
+.rider-left .rider-head {
+  width: 66px;
+  height: 66px;
+  left: 52px;
+  top: 46px;
+  border-radius: 50%;
+  background: #d47c57;
+  border: var(--stroke);
+}
+
+.rider-left .rider-hair {
+  width: 72px;
+  height: 34px;
+  left: 46px;
+  top: 44px;
+  border-radius: 40px 40px 10px 10px;
+  background: var(--line);
+}
+
+.rider-left .rider-body {
+  width: 142px;
+  height: 126px;
+  left: 42px;
+  top: 88px;
+  border-radius: 56% 46% 48% 52%;
+  border: var(--stroke);
+  background: var(--blue);
+  transform: rotate(14deg);
+}
+
+.rider-left .rider-arm {
+  width: 120px;
+  height: 40px;
+  left: -10px;
+  top: 108px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: #cf754f;
+  transform: rotate(-12deg);
+}
+
+.rider-right {
+  left: 300px;
+  bottom: 12px;
+  width: 210px;
+  height: 210px;
+}
+
+.rider-right .rider-head {
+  width: 62px;
+  height: 62px;
+  left: 72px;
+  top: 54px;
+  border-radius: 50%;
+  background: #ffd7c8;
+  border: var(--stroke);
+}
+
+.rider-right .rider-hair {
+  width: 72px;
+  height: 48px;
+  left: 52px;
+  top: 52px;
+  border-radius: 18px 40px 28px 18px;
+  background: var(--line);
+  transform: rotate(10deg);
+}
+
+.rider-right .rider-body {
+  width: 128px;
+  height: 138px;
+  left: 46px;
+  top: 94px;
+  border-radius: 40% 48% 54% 44%;
+  border: var(--stroke);
+  background: var(--teal);
+  transform: rotate(8deg);
+}
+
+.rider-right .rider-arm {
+  width: 110px;
+  height: 38px;
+  left: 28px;
+  top: 118px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: var(--pink);
+  transform: rotate(-12deg);
+}
+
+.scene-bike {
+  width: 460px;
+  height: 224px;
+  left: 90px;
+  bottom: 18px;
+  z-index: 4;
+}
+
+.bike-wheel {
+  position: absolute;
+  width: 132px;
+  height: 132px;
+  border-radius: 50%;
+  border: 8px solid var(--line);
+  background: repeating-conic-gradient(from 0deg, transparent 0 28deg, rgba(38,41,52,0.22) 28deg 29deg);
+}
+
+.bike-wheel::before {
+  content: "";
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(38,41,52,0.25);
+}
+
+.bike-wheel::after {
+  content: "";
+  position: absolute;
+  inset: 52px;
+  border-radius: 50%;
+  border: var(--stroke);
+  background: #eef0f8;
+}
+
+.bike-wheel-left { left: 18px; bottom: 0; }
+.bike-wheel-right { right: 8px; bottom: 0; }
+
+.bike-bar,
+.bike-seat,
+.bike-handle {
+  position: absolute;
+}
+
+.bike-bar {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.bike-bar-1 { left: 146px; top: 112px; width: 122px; transform: rotate(28deg); }
+.bike-bar-2 { left: 214px; top: 148px; width: 88px; transform: rotate(-56deg); }
+.bike-bar-3 { left: 254px; top: 164px; width: 118px; transform: rotate(38deg); }
+.bike-bar-4 { left: 214px; top: 160px; width: 106px; transform: rotate(5deg); }
+.bike-bar-5 { left: 132px; top: 168px; width: 94px; transform: rotate(-36deg); }
+.bike-bar-6 { left: 318px; top: 164px; width: 88px; transform: rotate(-70deg); }
+.bike-bar-7 { left: 392px; top: 84px; width: 52px; transform: rotate(96deg); }
+
+.bike-seat {
+  left: 246px;
+  top: 104px;
+  width: 30px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.bike-handle {
+  left: 388px;
+  top: 76px;
+  width: 42px;
+  height: 40px;
+  border-top: 4px solid var(--line);
+  border-right: 4px solid var(--line);
+  border-radius: 0 22px 0 0;
+  transform: rotate(10deg);
+}
+
+.scene-basket {
+  width: 116px;
+  height: 80px;
+  right: 20px;
+  bottom: 106px;
+  border: var(--stroke);
+  border-radius: 14px 14px 22px 22px;
+  background:
+    repeating-linear-gradient(to right, transparent 0 18px, rgba(38,41,52,0.18) 18px 20px),
+    repeating-linear-gradient(to bottom, transparent 0 16px, rgba(38,41,52,0.18) 16px 18px),
+    rgba(255,255,255,0.82);
+  transform: skew(-12deg);
+  z-index: 3;
+}
+
+.scene-basket::before {
+  content: "";
+  position: absolute;
+  left: -26px;
+  top: -4px;
+  width: 32px;
+  height: 80px;
+  border-left: var(--stroke);
+  border-top: var(--stroke);
+  border-radius: 26px 0 0 0;
+}
+
+.scene-leaf {
+  width: 58px;
+  height: 24px;
+  border: var(--stroke);
+  border-radius: 60% 0 60% 0;
+  background: var(--mint);
+  z-index: 4;
+}
+
+.leaf-a { right: 86px; bottom: 142px; transform: rotate(-20deg); }
+.leaf-b { right: 42px; bottom: 136px; transform: rotate(12deg); }
+.leaf-c { right: 92px; bottom: 118px; transform: rotate(26deg); }
+.leaf-d { right: 22px; bottom: 118px; transform: rotate(-18deg); }
+
+.scene-flower {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: var(--stroke);
+  background: var(--pink);
+  z-index: 5;
+}
+
+.scene-flower::before {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  background:
+    radial-gradient(circle at 50% 0, var(--yellow) 0 10px, transparent 10.5px),
+    radial-gradient(circle at 0 50%, var(--yellow) 0 10px, transparent 10.5px),
+    radial-gradient(circle at 100% 50%, var(--yellow) 0 10px, transparent 10.5px),
+    radial-gradient(circle at 50% 100%, var(--yellow) 0 10px, transparent 10.5px),
+    radial-gradient(circle at 18% 18%, var(--yellow) 0 10px, transparent 10.5px),
+    radial-gradient(circle at 82% 18%, var(--yellow) 0 10px, transparent 10.5px),
+    radial-gradient(circle at 18% 82%, var(--yellow) 0 10px, transparent 10.5px),
+    radial-gradient(circle at 82% 82%, var(--yellow) 0 10px, transparent 10.5px);
+  filter: drop-shadow(0 1px 0 rgba(38,41,52,0.6));
+  z-index: -1;
+}
+
+.flower-a { right: 92px; bottom: 198px; }
+.flower-b { right: 32px; bottom: 182px; }
+.flower-c { right: 68px; bottom: 152px; }
+
+.timeline-section {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  padding: 0 24px 18px;
+  background: linear-gradient(180deg, rgba(125,147,234,0.86) 0%, rgba(125,147,234,0) 100%);
+}
+
+.timeline-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.82);
+  box-shadow: 0 12px 0 rgba(38,41,52,0.1);
+}
+
+.timeline-inner::-webkit-scrollbar { display: none; }
+
+.t-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 28px;
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.t-node:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,0.58);
+}
+
+.t-node.active {
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 8px 0 rgba(38,41,52,0.06);
+}
+
+.t-dot {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: var(--paper);
+  font-size: 19px;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+.t-node.active .t-dot {
+  transform: translateY(-2px);
+  background: var(--ch-color);
+  color: #fff;
+}
+
+.t-name {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.t-stage {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0.72;
+}
+
+.t-line {
+  flex: 0 0 clamp(18px, 2.1vw, 36px);
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(38,41,52,0.18);
+}
+
+.chapter-area {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 18px 24px 72px;
+}
+
+.chapter-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 38px;
+  border: var(--stroke);
+  background: var(--paper);
+  box-shadow: var(--shadow-card);
+  animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chapter-card::before {
+  content: "";
+  position: absolute;
+  right: 30px;
+  top: 24px;
+  width: 108px;
+  height: 24px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.45);
+  transform: rotate(8deg);
+  opacity: 0.78;
+  pointer-events: none;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(28px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.ch-band {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 22px;
+  align-items: flex-start;
+  padding: 34px 38px;
+  color: #fff;
+  border-bottom: var(--stroke);
+  overflow: hidden;
+}
+
+.ch-band::before {
+  content: "";
+  position: absolute;
+  right: 36px;
+  top: 18px;
+  width: 146px;
+  height: 146px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.24);
+  background: rgba(255,255,255,0.08);
+}
+
+.ch-band::after {
+  content: attr(data-num);
+  position: absolute;
+  right: -4px;
+  top: -26px;
+  font-size: 180px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -8px;
+  opacity: 0.14;
+}
+
+.ch-hero-emoji {
+  width: 84px;
+  height: 84px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.88);
+  color: var(--line);
+  font-size: 44px;
+  z-index: 1;
+}
+
+.ch-band-body { min-width: 0; position: relative; z-index: 1; }
+
+.ch-seq {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  opacity: 0.76;
+  margin-bottom: 6px;
+}
+
+.ch-title {
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: clamp(28px, 4vw, 42px);
+  line-height: 1.05;
+}
+
+.ch-en-label {
+  margin-top: 6px;
+  font-size: 11px;
+  opacity: 0.66;
+  letter-spacing: 1.4px;
+}
+
+.ch-tagline {
+  margin-top: 14px;
+  max-width: 620px;
+  padding: 12px 16px;
+  border-radius: 22px;
+  border: 2px solid rgba(255,255,255,0.32);
+  background: rgba(255,255,255,0.16);
+  font-size: 14.5px;
+  line-height: 1.75;
+  font-family: var(--serif);
+}
+
+.ch-meta-row {
+  margin-top: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.ch-diff,
+.ch-scene-info,
+.ch-process-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.14);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.story-strip {
+  padding: 30px 34px 34px;
+  border-bottom: var(--stroke);
+  background: linear-gradient(180deg, rgba(255,255,255,0.55), rgba(248,248,255,0.95));
+}
+
+.section-label,
+.meeting-header,
+.cap-label,
+.pit-heading {
+  font-family: "ZCOOL KuaiLe", cursive;
+}
+
+.section-label {
+  margin-bottom: 18px;
+  font-size: 22px;
+  color: var(--line);
+}
+
+.panels-row {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+}
+
+.panels-row::-webkit-scrollbar { display: none; }
+
+.p-mini {
+  position: relative;
+  flex: 1;
+  min-width: 126px;
+  max-width: 186px;
+  padding: 18px 14px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  border-radius: 28px;
+  border: var(--stroke);
+  box-shadow: 0 10px 0 rgba(38,41,52,0.08);
+  transition: transform 0.2s ease;
+  overflow: hidden;
+}
+
+.p-mini::before {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  width: 52px;
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.56);
+  transform: translateX(-50%) rotate(-4deg);
+}
+
+.p-mini:hover { transform: translateY(-4px) rotate(-1deg); }
+.p-mini[data-clickable] { cursor: pointer; }
+.p-mini .p-hint { font-size: 10px; color: #55627f; margin-top: 3px; font-weight: 700; }
+
+.p-mini.warm { background: #fff2c9; }
+.p-mini.conflict { background: #ffd8dd; }
+.p-mini.insight { background: #dcf4ff; }
+.p-mini.win { background: #dff7e9; }
+.p-mini.normal { background: #ece5ff; }
+
+.p-scene-icon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.88);
+  font-size: 24px;
+}
+
+.p-mood { font-size: 18px; line-height: 1; }
+
+.p-who {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.7);
+  font-size: 10px;
+  font-weight: 800;
+  color: #5a6681;
+  letter-spacing: 0.4px;
+}
+
+.p-line {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+
+.p-arrow {
+  align-self: center;
+  flex-shrink: 0;
+  margin: 0 -4px;
+  padding-bottom: 10px;
+  font-size: 30px;
+  color: rgba(38,41,52,0.5);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: var(--stroke);
+}
+
+.info-block {
+  padding: 24px 22px;
+  border-right: var(--stroke);
+  background: rgba(255,255,255,0.7);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.info-block:last-child { border-right: none; }
+.info-block:hover { background: var(--ch-soft); transform: translateY(-2px); }
+
+.ib-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.92);
+  font-size: 20px;
+}
+
+.ib-label {
+  margin-bottom: 9px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #6b7590;
+}
+
+.ib-content {
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag,
+.cap-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 2px solid var(--ch-color);
+  background: rgba(255,255,255,0.86);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: var(--line);
+}
+
+.meeting-section {
+  background: linear-gradient(180deg, rgba(255,255,255,0.76), rgba(246,248,255,0.95));
+}
+
+.meeting-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 34px;
+  font-size: 22px;
+  color: var(--line);
+  border-bottom: var(--stroke);
+}
+
+.meeting-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.meeting-left,
+.meeting-right {
+  padding: 26px 30px 28px;
+}
+
+.meeting-left { border-right: var(--stroke); }
+
+.ms-title {
+  margin-bottom: 14px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #687593;
+}
+
+.roles-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.role-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 8px 0 rgba(38,41,52,0.06);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.role-chip:hover {
+  transform: translateY(-2px);
+  background: var(--ch-soft);
+}
+
+.role-chip .rc-hint { font-size: 10px; opacity: 0.5; }
+
+.os-popup {
+  position: fixed;
+  z-index: 200;
+  max-width: 288px;
+  padding: 16px 18px;
+  border-radius: 24px;
+  border: var(--stroke);
+  background: var(--paper);
+  box-shadow: 0 18px 0 rgba(38,41,52,0.12);
+  font-size: 13px;
+  line-height: 1.7;
+  pointer-events: none;
+  animation: popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.os-popup::after {
+  content: "";
+  position: absolute;
+  left: 26px;
+  bottom: -12px;
+  width: 22px;
+  height: 22px;
+  border-right: var(--stroke);
+  border-bottom: var(--stroke);
+  background: var(--paper);
+  transform: rotate(45deg);
+}
+
+@keyframes popIn {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.os-popup-role {
+  margin-bottom: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #687593;
+}
+
+.os-popup-bubble {
+  font-family: var(--serif);
+  color: #33415d;
+}
+
+.os-popup-bubble::before { content: "💭 「"; }
+.os-popup-bubble::after { content: "」"; }
+
+.meeting-item,
+.del-item,
+.decision-box {
+  border-radius: 22px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.9);
+  box-shadow: 0 10px 0 rgba(38,41,52,0.06);
+}
+
+.meeting-item {
+  margin-bottom: 14px;
+  padding: 14px 16px;
+}
+
+.meeting-item:last-child,
+.del-item:last-child { margin-bottom: 0; }
+
+.mi-title,
+.del-name {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.mi-meta,
+.del-desc {
+  font-size: 12px;
+  color: #55627f;
+  line-height: 1.62;
+}
+
+.mi-attendees {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #6d7992;
+}
+
+.decision-box {
+  margin-top: 14px;
+  padding: 16px 18px;
+  line-height: 1.72;
+  background: rgba(255,255,255,0.84);
+}
+
+.decision-box strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ch-color);
+}
+
+.del-item {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  padding: 14px 14px 14px 12px;
+}
+
+.del-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.94);
+  font-size: 20px;
+}
+
+.del-body { flex: 1; }
+
+.cap-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 34px 22px;
+  border-top: var(--stroke);
+  background: rgba(255,255,255,0.72);
+}
+
+.cap-label {
+  margin-right: 4px;
+  font-size: 22px;
+  color: var(--line);
+}
+
+.pitfall-bar {
+  position: relative;
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 24px 34px 28px;
+  border-top: var(--stroke);
+  background: linear-gradient(180deg, #ffe9f6 0%, #f0ebff 100%);
+  overflow: hidden;
+}
+
+.pitfall-bar::before {
+  content: "";
+  position: absolute;
+  right: 28px;
+  top: 24px;
+  width: 140px;
+  height: 28px;
+  border: var(--stroke);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.48);
+  transform: rotate(-8deg);
+  opacity: 0.8;
+}
+
+.pit-icon {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.88);
+  font-size: 24px;
+  z-index: 1;
+}
+
+.pit-body { position: relative; z-index: 1; }
+
+.pit-heading {
+  margin-bottom: 8px;
+  font-size: 22px;
+  color: #7b3ea1;
+}
+
+.pit-trap {
+  font-family: var(--serif);
+  font-size: 14px;
+  line-height: 1.8;
+  color: #4f4570;
+}
+
+.pit-lesson {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 2px solid rgba(123,62,161,0.16);
+  font-size: 13px;
+  line-height: 1.75;
+  color: #5f5f86;
+}
+
+.next-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+  padding: 22px 34px;
+  border-top: var(--stroke);
+  background: var(--next-soft);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.next-bar:hover { transform: translateY(-2px); }
+
+.next-bar-text {
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 640px;
+  color: #394562;
+}
+
+.next-bar-text strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--next-color);
+}
+
+.next-arrow {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 18px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.8);
+  color: var(--next-color);
+  font-size: 24px;
+}
+
+.placeholder-card {
+  padding: 84px 40px;
+  text-align: center;
+  border-radius: 34px;
+  border: var(--stroke);
+  background: rgba(255,255,255,0.86);
+  box-shadow: var(--shadow-card);
+}
+
+.ph-emoji {
+  width: 88px;
+  height: 88px;
+  margin: 0 auto 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 28px;
+  border: var(--stroke);
+  background: var(--ch-soft);
+  font-size: 42px;
+}
+
+.ph-title {
+  font-family: "ZCOOL KuaiLe", cursive;
+  font-size: 26px;
+  color: var(--line);
+  margin-bottom: 8px;
+}
+
+.ph-sub {
+  font-size: 14px;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 1020px) {
+  .header-shell { grid-template-columns: 1fr; }
+  .hero-graphic { min-height: 360px; }
+  .hero-scene { transform: translate(-50%, -46%) scale(0.8); }
+}
+
+@media (max-width: 820px) {
+  .info-grid { grid-template-columns: repeat(2, 1fr); }
+  .info-block:nth-child(2n) { border-right: none; }
+  .info-block:nth-child(-n + 2) { border-bottom: var(--stroke); }
+  .meeting-body { grid-template-columns: 1fr; }
+  .meeting-left { border-right: none; border-bottom: var(--stroke); }
+}
+
+@media (max-width: 580px) {
+  .site-header { padding: 28px 16px 18px; }
+  .timeline-section { padding: 0 16px 14px; }
+  .chapter-area { padding: 14px 16px 56px; }
+  .site-sub { padding: 16px 18px; font-size: 14px; }
+  .hero-graphic { min-height: 300px; border-radius: 32px; }
+  .hero-scene { transform: translate(-50%, -44%) scale(0.62); }
+  .ch-band { padding: 22px 20px; gap: 14px; }
+  .ch-hero-emoji { width: 66px; height: 66px; border-radius: 22px; font-size: 34px; }
+  .story-strip,
+  .meeting-header,
+  .cap-bar,
+  .pitfall-bar,
+  .next-bar { padding-left: 20px; padding-right: 20px; }
+  .meeting-left,
+  .meeting-right { padding: 20px; }
+  .info-block { padding: 18px 16px; }
+  .next-bar { align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-shell">
+    <div class="hero-copy">
+      <div class="header-badge">🧠 AI PM · 产品全流程</div>
+      <h1 class="site-title">AI产品<em>历险记</em></h1>
+      <p class="site-sub">一个真实项目的六幕故事，从发现机会到全量上线。把 AI 产品流程画成一张平涂插画海报，让挑战、决策与成长像车上的每个道具一样，一路并行向前。</p>
+      <div class="site-meta">
+        <span class="meta-pill">📦 CloudSync · 200人SaaS公司</span>
+        <span class="meta-pill">🤖 AI智能工单分类项目</span>
+        <span class="meta-pill">⏱️ 约4个月完整周期</span>
+      </div>
+    </div>
+
+    <div class="hero-graphic" aria-hidden="true">
+      <div class="hero-scene">
+        <div class="scene-splash"></div>
+        <div class="scene-star"></div>
+        <div class="scene-pencil"></div>
+        <div class="scene-arc"></div>
+        <div class="scene-screen"></div>
+        <div class="scene-box"></div>
+
+        <div class="scene-rider rider-left">
+          <span class="rider-head"></span>
+          <span class="rider-hair"></span>
+          <span class="rider-body"></span>
+          <span class="rider-arm"></span>
+        </div>
+
+        <div class="scene-rider rider-right">
+          <span class="rider-head"></span>
+          <span class="rider-hair"></span>
+          <span class="rider-body"></span>
+          <span class="rider-arm"></span>
+        </div>
+
+        <div class="scene-bike">
+          <div class="bike-wheel bike-wheel-left"></div>
+          <div class="bike-wheel bike-wheel-right"></div>
+          <span class="bike-bar bike-bar-1"></span>
+          <span class="bike-bar bike-bar-2"></span>
+          <span class="bike-bar bike-bar-3"></span>
+          <span class="bike-bar bike-bar-4"></span>
+          <span class="bike-bar bike-bar-5"></span>
+          <span class="bike-bar bike-bar-6"></span>
+          <span class="bike-bar bike-bar-7"></span>
+          <span class="bike-seat"></span>
+          <span class="bike-handle"></span>
+        </div>
+
+        <div class="scene-basket"></div>
+        <div class="scene-leaf leaf-a"></div>
+        <div class="scene-leaf leaf-b"></div>
+        <div class="scene-leaf leaf-c"></div>
+        <div class="scene-leaf leaf-d"></div>
+        <div class="scene-flower flower-a"></div>
+        <div class="scene-flower flower-b"></div>
+        <div class="scene-flower flower-c"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="timeline-section">
+  <div class="timeline-inner" id="timelineInner"></div>
+</nav>
+
+<main class="chapter-area">
+  <div id="chapterMount"></div>
+</main>
+
+<!-- OS Popup (global, positioned by JS) -->
+<div class="os-popup" id="osPopup" style="display:none">
+  <div class="os-popup-role" id="osPopupRole"></div>
+  <div class="os-popup-bubble" id="osPopupText"></div>
+</div>
+
+<script>
+const CHAPTERS = [
+  {
+    id: 1,
+    emoji: "🔥",
+    shortName: "信号汇聚",
+    stage: "产品机会发掘",
+    stageEn: "Product Discovery",
+    processTerms: ["Opportunity Assessment", "Signal Triangulation"],
+    color: "#E8622A",
+    soft: "#FFF0E6",
+    border: "#FFCFB0",
+    tagline: "从三路散乱信号里，识别出同一个产品机会假设",
+    scene: "办公室各角落 → 产品VP办公室",
+    time: "项目前史 · 一切开始之前",
+    difficulty: 1,
+    diffLabel: "向上沟通 · 机会判断",
+    panels: [
+      { mood: "warm",     icon: "📊", who: "Support负责人", moodEmoji: "😤", line: "首响时间 4h → 11h，人根本不够用" },
+      { mood: "conflict", icon: "📱", who: "客户成功经理",   moodEmoji: "😰", line: "大客户要跑了，续费120万没了" },
+      { mood: "insight",  icon: "💻", who: "PM",            moodEmoji: "😱", line: "竞品AI工单分类已经上线了？" },
+      { mood: "normal",   icon: "📝", who: "PM",            moodEmoji: "💡", line: "三个信号指向同一问题" },
+      { mood: "win",      icon: "🗣️", who: "产品VP",        moodEmoji: "✅", line: "给你一周，先搞清楚问题" }
+    ],
+    challenge: "三路信号来源各异（客服数据、客户流失、竞品动态），不确定是否指向同一问题；面临「看到竞品做AI就跟进」的冲动，需要克制。",
+    solution: "以 Signal Triangulation 方法将三路信号归因，构建产品机会假设，用一页 Opportunity Brief 向 VP 争取调研窗口。",
+    capabilities: ["信号捕捉", "竞品监测", "机会假设构建", "向上汇报与资源申请"],
+    roles: [
+      { role: "PM", emoji: "🧑‍💻", os: ["又是平静的一天…等等，这三件事好像有关联？", "万一陈总觉得我多管闲事怎么办……不，不提才是失职。"] },
+      { role: "产品VP", emoji: "👔", os: ["小焦这个发现还不错，先让她调研再说，别急着上马", "上次那组AI排班搞了三个月，一个Excel公式就解决了"] },
+      { role: "Support负责人", emoji: "🎧", os: ["工单积压成这样，再不解决我要带组员集体辞职了", "PM来了？希望这次不是走个过场走就跑"] },
+      { role: "客户成功经理", emoji: "📞", os: ["大客户要跑了，两个加起来120万续费……谁来救我", "我的KPI要完了，工单这事不解决我没法活"] }
+    ],
+    meetings: [
+      {
+        title: "产品VP 1on1 · 机会汇报",
+        type: "向上汇报",
+        attendees: ["PM", "产品VP"],
+        duration: "15 min",
+        note: "以三信号框架汇报机会，争取调研授权"
+      }
+    ],
+    decision: "获准开展一周深度调研，进入可行性评估阶段（Feasibility Study）",
+    deliverables: [
+      {
+        icon: "📄",
+        name: "产品机会分析 Brief",
+        desc: "一页纸；含三信号来源、问题假设、竞品参照、初步ROI预估区间"
+      },
+      {
+        icon: "📊",
+        name: "竞品 AI 功能对标速查表",
+        desc: "覆盖5家竞品，对比工单分类能力、接入方式、准确率公示情况"
+      }
+    ],
+    pitfall: "看到竞品做 AI 就急着跟进——「竞品做了」≠「我们也要做」，更不等于「要用同样的方式做」。",
+    lesson: "正确做法：先回到问题本身。效率瓶颈是出在分类环节，还是人手，还是流程设计？陈总那句「别一上来就想着用AI」是在帮我纠偏。",
+    suspense: "陈总给了一周窗口。小焦满怀信心走进客服部——但她很快发现，自己以为了解的客服流程，和真实情况完全是两回事。"
+  },
+  {
+    id: 2,
+    emoji: "🔍",
+    shortName: "蹲点调研",
+    stage: "场景调研与可行性评估",
+    stageEn: "User Research & Feasibility",
+    processTerms: ["Workflow Decomposition", "Feasibility Study", "Problem Reframing"],
+    color: "#0096B4",
+    soft: "#E6F9FF",
+    border: "#9EEAFF",
+    tagline: "从“分类慢”的表象里，重新定义出真正该解决的问题",
+    scene: "客服部工位区 → 会议室",
+    time: "项目第1周",
+    difficulty: 2,
+    diffLabel: "一线调研 · 问题重定义",
+    panels: [
+      { mood: "warm", icon: "🚪", who: "PM", moodEmoji: "🙂", line: "以为问题只是分类慢，蹲一下就能看懂" },
+      { mood: "insight", icon: "⚡", who: "资深一线客服", moodEmoji: "😌", line: "老客服看标题和客户名，3秒就能分完" },
+      { mood: "conflict", icon: "😵", who: "新人一线客服", moodEmoji: "😓", line: "拿不准就先随便选，误分类从这里开始" },
+      { mood: "normal", icon: "🧩", who: "PM", moodEmoji: "🤯", line: "真正瓶颈是分不准 + 没有优先级机制" },
+      { mood: "insight", icon: "🧠", who: "算法工程师", moodEmoji: "🤔", line: "数据可做，但定义不清技术也救不了" },
+      { mood: "win", icon: "📈", who: "产品VP", moodEmoji: "✅", line: "按准确率问题立项，进入方案设计" }
+    ],
+    challenge: "管理层口中的问题是“分类慢”，但一线现场暴露出来的其实是“新人分不准”和“紧急工单没有优先级插队机制”。如果只听转述、不看真实操作，就会在错误的问题定义上继续用力。",
+    solution: "用 Shadowing + Workflow Decomposition 还原客服真实工作流，再结合历史标注数据做 Feasibility Study。最后把问题从“效率慢”重定义为“准确率低 + 优先级机制缺失”，把 AI 的目标框定为“拉高新人准确率并辅助紧急程度判断”。",
+    capabilities: ["一线调研", "工作流拆解", "AI适用性判断", "问题重定义", "立项推动"],
+    roles: [
+      { role: "PM", emoji: "🧑‍💻", os: ["我以为调研就是访谈几个人，没想到是去当了一周卧底。", "如果我只听老周转述就下结论，整个方向都会跑偏。"] },
+      { role: "Support负责人", emoji: "🎧", os: ["PM来蹲点？这是我们的苦日子终于被看见了吗。", "希望她不是只听我吐槽两句就回去写报告。"] },
+      { role: "资深一线客服", emoji: "💨", os: ["又来一个觉得自己能改变世界的PM……先看看她懂不懂我们的活。", "这些单子一眼就知道是什么，哪用逐字逐句看。"] },
+      { role: "新人一线客服", emoji: "🥺", os: ["我是不是真的很笨啊，为什么别人3秒能分完我要看30秒……", "拿不准的时候我也知道不该乱选，可工单堆着更慌。"] },
+      { role: "算法工程师", emoji: "🧠", os: ["文本分类听起来不难，但先把数据和定义拿给我看。", "业务边界没讲清，再好的模型也只能学到模糊答案。"] },
+      { role: "产品VP", emoji: "👔", os: ["如果问题真的是准确率而不是速度，这项目就值得往下走。", "ROI能说清楚，我就给她进下一阶段。"] }
+    ],
+    meetings: [
+      {
+        title: "一线调研访谈 · 客服现场蹲点",
+        type: "用户研究",
+        attendees: ["PM", "Support负责人", "资深一线客服", "新人一线客服"],
+        duration: "4-5 sessions",
+        note: "连续观察真实分单动作，记录经验判断、误分类来源与流转卡点"
+      },
+      {
+        title: "可行性评审会",
+        type: "立项评估",
+        attendees: ["PM", "算法工程师", "产品VP", "Support负责人"],
+        duration: "60 min",
+        note: "用准确率差距、误分类损失与ROI初估说明项目值得进入方案设计"
+      }
+    ],
+    decision: "确认项目核心问题是“分类准确率”而非“分类速度”，AI工单分类方向具备可行性，获准进入方案设计阶段（Solution Design）。",
+    deliverables: [
+      {
+        icon: "📄",
+        name: "用户调研报告",
+        desc: "含客服工作流现状图、现场观察记录、资深/新人差异摘要与问题重定义结论"
+      },
+      {
+        icon: "📊",
+        name: "AI适用性评估矩阵",
+        desc: "拆分规则可覆盖 case 与需要语义理解 case，说明 AI 介入边界与预期价值"
+      },
+      {
+        icon: "🗂️",
+        name: "立项审批文档",
+        desc: "写清问题定义、预期收益、主要风险、ROI 初估与下一阶段资源需求"
+      }
+    ],
+    pitfall: "调研时差点只和 Support 负责人聊完就写结论。管理层视角会把复杂问题压扁成一句“分类慢”，但一线真正痛的是“分不准”以及“紧急工单没有被优先处理”。",
+    lesson: "永远不要只听转述。去现场看真实操作，把工作流拆开，你才会知道 AI 应该补的是哪一段能力。如果基于错误的问题定义推进，后面所有方案都会建立在偏差上。",
+    suspense: "可行性通过了，但真正的硬仗才刚开始——小焦需要从技术负责人手里抢到开发资源，而对方开口第一句就让她心凉了半截。"
+  },
+  {
+    id: 3,
+    emoji: "⚔️",
+    shortName: "资源争夺",
+    stage: "方案设计与资源排期",
+    stageEn: "Solution Design & Prioritization",
+    processTerms: ["Technical Optioning", "MVP Scoping", "ROI Modeling"],
+    color: "#C0392B",
+    soft: "#FFF0F0",
+    border: "#FFCDD2",
+    tagline: "项目可行不等于资源到位，方案、范围和ROI必须一起讲清楚",
+    scene: "技术会议室 → 产品评审会",
+    time: "项目第2-3周",
+    difficulty: 3,
+    diffLabel: "资源谈判 · MVP收口",
+    panels: [
+      { mood: "warm", icon: "🚶", who: "PM", moodEmoji: "😌", line: "拿着调研结论去要资源，以为这次稳了" },
+      { mood: "conflict", icon: "🧱", who: "技术负责人", moodEmoji: "😐", line: "规则引擎就能做，何必搞AI？" },
+      { mood: "normal", icon: "📈", who: "PM", moodEmoji: "😤", line: "别争概念，用40%长尾case的数据说话" },
+      { mood: "insight", icon: "🧪", who: "算法工程师", moodEmoji: "🤔", line: "MVP先走大模型API，快验证效果" },
+      { mood: "normal", icon: "📏", who: "后端工程师", moodEmoji: "😵", line: "功能想做很多，但资源只够两个核心点" },
+      { mood: "win", icon: "📣", who: "产品VP", moodEmoji: "✅", line: "算法两周全职 + 后端半职，先把MVP跑起来" }
+    ],
+    challenge: "项目已经证明“值得做”，但还没证明“值得给资源”。技术负责人天然更关心复杂度和稳定性，后端资源又被别的需求占满；如果在这个阶段讲不清技术边界、ROI 和最小范围，项目就会停在“原则上可行”。",
+    solution: "先用历史 case 说明规则引擎只能覆盖约60%，把争论从“AI先进不先进”拉回到“40%长尾场景规则无解”。再通过 Technical Optioning 比较大模型 API 与自训模型，最后用 MVP Scoping 砍掉自动回复等扩展功能，只保留自动分类与紧急程度标记，用 ROI Modeling 换到最关键的两周资源窗口。",
+    capabilities: ["技术方案评估", "MVP Scope管理", "ROI量化", "资源谈判", "利益相关方管理"],
+    roles: [
+      { role: "PM", emoji: "🧑‍💻", os: ["项目可行是一回事，能不能要到人是另一回事。我太天真了。", "这个阶段要的不是热情，是能让老王点头的数据和边界。"] },
+      { role: "算法工程师", emoji: "🧠", os: ["方案我给了两个，选哪个看业务诉求，别把这种决策全甩给我。", "MVP先跑 API 才有速度，效果都没验证就谈自训是空转。"] },
+      { role: "后端工程师", emoji: "🛠️", os: ["又来一个新项目？我手上三个需求还没排完呢。", "如果范围不收口，这活根本排不进去。"] },
+      { role: "技术负责人", emoji: "🧱", os: ["AI？这帮年轻人什么都想往AI上靠。规则能做的事别搞复杂。", "谁来保证上线后别出事？我的人不是拿来试验概念的。"] },
+      { role: "产品VP", emoji: "👔", os: ["方案得靠数据说话。小焦能不能hold住老王，就看这次了。", "如果ROI和节奏讲清楚，这个项目就该继续推进。"] }
+    ],
+    meetings: [
+      {
+        title: "技术方案讨论会",
+        type: "方案评审",
+        attendees: ["PM", "算法工程师", "后端工程师"],
+        duration: "90 min",
+        note: "对比大模型 API 与自训分类模型的验证速度、成本、数据依赖与实施风险"
+      },
+      {
+        title: "产品评审会 / 排期会",
+        type: "资源谈判",
+        attendees: ["PM", "技术负责人", "产品VP", "算法工程师", "后端工程师"],
+        duration: "60 min",
+        note: "围绕 MVP 范围、ROI 测算与人力占用达成推进条件"
+      }
+    ],
+    decision: "确定 MVP 先走大模型 API 路线，只做自动分类 + 紧急程度标记，并争取到算法全职两周、后端半职两周的资源窗口。",
+    deliverables: [
+      {
+        icon: "📊",
+        name: "技术选型对比表",
+        desc: "比较大模型 API 与自训模型在成本、延迟、准确率、数据安全四个维度的权衡"
+      },
+      {
+        icon: "📄",
+        name: "PRD v0.1 · MVP范围定义",
+        desc: "明确做什么、不做什么，写清功能边界、优先级与后续扩展预留"
+      },
+      {
+        icon: "🧮",
+        name: "ROI测算模型",
+        desc: "把资源投入、误分类下降、客户流失挽回金额和预期回收周期量化出来"
+      },
+      {
+        icon: "📋",
+        name: "资源排期表",
+        desc: "对齐算法、后端投入比例、两周里程碑和关键评审节点"
+      }
+    ],
+    pitfall: "技术负责人一说“规则引擎就能做”，差点就把讨论带进“AI vs 规则”的概念争论。这个方向最耗时间，也最说服不了真正掌握资源的人。",
+    lesson: "和技术团队沟通，不要争概念，要讲边界和数据。证明“40%长尾 case 规则覆盖不了”比证明“AI更先进”更有效；同时，MVP 要狠下心收口，资源有限时先证明核心价值，再谈扩展功能。",
+    suspense: "资源终于拿到了，两周倒计时开始。小焦以为最难的部分已经过去了——直到内测第二天看到72%的准确率，她整个人都僵住了。"
+  },
+  {
+    id: 4,
+    emoji: "🧪",
+    shortName: "内测风暴",
+    stage: "MVP开发与验证",
+    stageEn: "MVP Development & Validation",
+    processTerms: ["Acceptance Criteria", "Prompt Iteration", "Root Cause Analysis"],
+    color: "#7B2FBE",
+    soft: "#F5EEFF",
+    border: "#DDBBFF",
+    tagline: "模型效果翻车时，真正要查的不是情绪，而是定义、数据和根因",
+    scene: "开发工位区 → 客服部内测环境",
+    time: "项目第3-5周",
+    difficulty: 3,
+    diffLabel: "效果验证 · 根因定位",
+    panels: [
+      { mood: "normal", icon: "⏳", who: "PM", moodEmoji: "😬", line: "资源到位，两周倒计时，所有人都在赶" },
+      { mood: "insight", icon: "🏷️", who: "PM", moodEmoji: "🧐", line: "亲自标测试集，才看见分类边界到底多模糊" },
+      { mood: "conflict", icon: "📉", who: "PM", moodEmoji: "😱", line: "内测第二天只有72%，比预期差太多了" },
+      { mood: "normal", icon: "🔬", who: "算法工程师", moodEmoji: "🤨", line: "模型没坏，问题出在prompt定义和客服标准不一致" },
+      { mood: "insight", icon: "📝", who: "测试工程师", moodEmoji: "🧷", line: "补齐验收标准、边界case和badcase清单" },
+      { mood: "win", icon: "✨", who: "PM", moodEmoji: "🥹", line: "定义修正后准确率回到86%，MVP终于达标" }
+    ],
+    challenge: "MVP 并不是上线就能证明价值。模型效果第一次跑出来只有72%，既低于预期，也低于人工平均水平。最难的不是“修高准确率”，而是在极短时间里判断：问题是模型能力、数据标注、Prompt 定义，还是业务标准本身没对齐。",
+    solution: "先补齐 Acceptance Criteria，再让 PM 亲自参与标注与 badcase 排查，用 Root Cause Analysis 把“模型不准”和“定义不清”拆开看。最终通过 Prompt Iteration 把分类边界、示例和客服真实标准重新对齐，把问题从“换模型”转回“修业务定义”。",
+    capabilities: ["数据思维", "验收标准定义", "Prompt Engineering协作", "根因定位", "跨角色对齐"],
+    roles: [
+      { role: "PM", emoji: "🧑‍💻", os: ["72%？不是说好的85%吗？我汇报的时候信誓旦旦说两周出数据，现在怎么交代？", "还好我自己下去标过数据，不然现在根本判断不出是模型错还是定义错。"] },
+      { role: "算法工程师", emoji: "🧠", os: ["模型没问题啊，是你们定义没讲清楚……算了先查。", "别一出问题就想换模型，先看 badcase 到底错在哪。"] },
+      { role: "后端工程师", emoji: "🛠️", os: ["接口都接好了，别告诉我现在要推翻重来。", "只要范围别继续膨胀，我还能扛住这轮修。"] },
+      { role: "测试工程师", emoji: "🧷", os: ["我就说要先测嘛，你们非要直接上内测。", "边界 case 不补齐，准确率数字再好看也不稳。"] },
+      { role: "Support负责人", emoji: "🎧", os: ["客服那边先别慌，我只想知道到底是系统不行还是标准没讲清。", "只要最后能比新人稳，我们就愿意继续测。"] },
+      { role: "资深一线客服", emoji: "💨", os: ["AI建议大体还行，但有几条离谱得我差点笑出声。", "你们定义里的‘功能建议’和我们理解的根本不是一回事。"] },
+      { role: "新人一线客服", emoji: "🥺", os: ["AI都分不对，那我分错是不是也没那么丢人了……", "如果标准能写得再清楚一点，我其实愿意跟着学。"] }
+    ],
+    meetings: [
+      {
+        title: "每日内测站会",
+        type: "验证推进",
+        attendees: ["PM", "算法工程师", "Support负责人", "资深一线客服"],
+        duration: "15 min",
+        note: "追踪准确率、采纳率和当日 badcase，快速同步修正方向"
+      },
+      {
+        title: "内测复盘会",
+        type: "结果复盘",
+        attendees: ["PM", "算法工程师", "后端工程师", "测试工程师", "Support负责人"],
+        duration: "60 min",
+        note: "确认问题来自分类定义偏差而非模型能力，并对齐下一步修正项"
+      }
+    ],
+    decision: "确认准确率问题的根因是分类定义与 Prompt 标准未对齐，而不是模型路线错误；修正定义后，MVP 达到继续推进的验证标准。",
+    deliverables: [
+      {
+        icon: "📄",
+        name: "数据标注规范文档",
+        desc: "统一分类定义、边界案例和标注一致性规则，避免不同角色各自理解一套标准"
+      },
+      {
+        icon: "📋",
+        name: "验收标准定义表",
+        desc: "明确准确率、采纳率、误分类率等 Acceptance Criteria 及达标阈值"
+      },
+      {
+        icon: "📊",
+        name: "内测数据报告",
+        desc: "记录修复前后准确率变化、badcase分布与客服采纳情况"
+      },
+      {
+        icon: "🧠",
+        name: "Badcase分析表",
+        desc: "归因 Top N 错误案例，区分模型问题、定义问题和数据问题"
+      },
+      {
+        icon: "✍️",
+        name: "分类标准修正文档 v1.1",
+        desc: "同步 Prompt 更新项、示例补充和变更原因，确保业务口径一致"
+      }
+    ],
+    pitfall: "看到72%的准确率，第一反应差点是“模型不行”。这是 AI 产品里最危险的误判，因为它会让团队绕开真正的问题定义，直接把责任丢给模型。",
+    lesson: "AI 输出质量的上限取决于你把业务规则讲得有多清楚。PM 亲自参与标注看起来像“降级”，但它能让你在翻车时迅速判断：这是模型的锅，还是定义本来就没对齐。",
+    suspense: "内测总算过了，数据也够漂亮。小焦开始准备灰度上线方案——但她还没意识到，一个功能能不能被真正用起来，不只取决于它准不准。"
+  },
+  {
+    id: 5,
+    emoji: "🚀",
+    shortName: "灰度上线",
+    stage: "灰度发布与全量上线",
+    stageEn: "Staged Rollout & Go-Live",
+    processTerms: ["Go/No-Go Review", "Fallback Plan", "Interaction Optimization"],
+    color: "#059669",
+    soft: "#E6FFF8",
+    border: "#9EFCE3",
+    tagline: "上线不是把开关打开，而是把风险、指标和用户行为一起管住",
+    scene: "产品评审会 → 客服部 → 数据看板",
+    time: "项目第6-8周",
+    difficulty: 3,
+    diffLabel: "发布策略 · 交互落地",
+    panels: [
+      { mood: "normal", icon: "🗓️", who: "PM", moodEmoji: "😤", line: "先把灰度阶段、观察指标和回滚条件写清楚" },
+      { mood: "insight", icon: "✅", who: "测试工程师", moodEmoji: "🧐", line: "上线不只看准确率，P0误分类率必须卡死" },
+      { mood: "win", icon: "📋", who: "产品VP", moodEmoji: "👌", line: "Go-No-Go评审通过，灰度正式开始" },
+      { mood: "conflict", icon: "📉", who: "PM", moodEmoji: "😳", line: "准确率稳住了，采纳率却掉到65%" },
+      { mood: "insight", icon: "🎨", who: "前端工程师", moodEmoji: "🙄", line: "AI建议藏太深，用户根本没注意到它" },
+      { mood: "win", icon: "🎉", who: "Support负责人", moodEmoji: "👍", line: "交互改完后采纳率回升，全量上线达标" }
+    ],
+    challenge: "内测成功并不代表可以直接放量。灰度阶段既要控制线上风险，又要证明功能在真实用户场景里会被看见、会被采纳。最容易踩的坑是只盯模型指标，以为准确率达标就万事大吉。",
+    solution: "先用 Go/No-Go Review 定义上线门槛，把准确率、采纳率、P0误分类率和降级触发条件全部写进 Fallback Plan。放量后持续盯真实行为数据，一旦发现“准确但没人用”，立即回到现场观察，再通过 Interaction Optimization 调整 AI 建议露出和确认路径。 ",
+    capabilities: ["发布策略制定", "Go/No-Go评审", "降级预案设计", "数据监控体系", "产品交互设计"],
+    roles: [
+      { role: "PM", emoji: "🧑‍💻", os: ["灰度这事看着简单，但要想到的东西比MVP阶段还多。", "准确率没掉但采纳率掉了？这不是模型问题，是产品落地出问题了。"] },
+      { role: "算法工程师", emoji: "🧠", os: ["模型指标已经够稳了，接下来就看产品侧能不能让用户真的用。", "只要别把归因又全推回模型，我这边能配合监控。"] },
+      { role: "后端工程师", emoji: "🛠️", os: ["回滚链路和超时兜底一定要先配好，不然上线我不放心。", "灰度最怕的不是出错，是错了还没法快速切回。"] },
+      { role: "前端工程师", emoji: "🎨", os: ["终于轮到我了。说真的，这个AI建议位置谁设计的？", "你们把价值藏在右下角，用户当然看不见。"] },
+      { role: "测试工程师", emoji: "🧷", os: ["上线清单我列了30条，你们别嫌我烦。", "P0误分类率不过线，这项目就别上。"] },
+      { role: "Support负责人", emoji: "🎧", os: ["东西准不准是一回事，一线能不能顺手用起来是另一回事。", "只要新人敢点、愿意点，这个功能才算真的落地。"] },
+      { role: "技术负责人", emoji: "🧱", os: ["他们真做出来了？行吧，别给线上稳定性惹麻烦就行。", "降级方案和SLA没确认之前，我不会放心放量。"] },
+      { role: "产品VP", emoji: "👔", os: ["数据看起来不错，但我更关心放量之后能不能稳住。", "上线不是终点，真正的考题是用户会不会用。"] }
+    ],
+    meetings: [
+      {
+        title: "Go/No-Go评审会",
+        type: "发布决策",
+        attendees: ["PM", "产品VP", "技术负责人", "算法工程师", "后端工程师", "测试工程师"],
+        duration: "60 min",
+        note: "确认灰度方案、上线门槛、SLA 和回滚预案是否全部就绪"
+      },
+      {
+        title: "灰度周报会",
+        type: "上线观察",
+        attendees: ["PM", "算法工程师", "Support负责人"],
+        duration: "30 min / week",
+        note: "按周复盘准确率、采纳率、P0误分类率和一线使用反馈"
+      }
+    ],
+    decision: "采用三阶段灰度策略推进发布，在交互改版后把采纳率拉回目标线，最终满足全量上线条件。",
+    deliverables: [
+      {
+        icon: "📄",
+        name: "灰度发布方案",
+        desc: "定义放量节奏、三阶段范围、每阶段观察指标与责任人"
+      },
+      {
+        icon: "📋",
+        name: "Go/No-Go Checklist",
+        desc: "固化准确率、采纳率、P0误分类率和回滚条件等上线门槛"
+      },
+      {
+        icon: "🧯",
+        name: "降级预案 SOP",
+        desc: "写清超时、错误率触发阈值、切回人工流程和通知链路"
+      },
+      {
+        icon: "🎨",
+        name: "交互改版 Design Doc",
+        desc: "记录 AI 建议展示位置、一键确认入口和改版前后采纳率对比"
+      },
+      {
+        icon: "📊",
+        name: "灰度阶段数据周报模板",
+        desc: "统一追踪各阶段准确率、采纳率、P0风险与一线反馈"
+      }
+    ],
+    pitfall: "灰度阶段如果只盯准确率，很容易得出“功能很好”的假象。准确率85%但用户根本没看到、没点过，实际价值仍然接近于零。",
+    lesson: "AI 产品落地效果 = 模型能力 × 产品交互设计。内测用户知道功能在哪，会主动找；真实用户不会。你必须把 AI 的价值摆到用户视线正中央，而不是默认他们会自己发现。",
+    suspense: "全量上线了，数据也很漂亮。小焦以为终于可以松口气——两个月后，一个她完全没预料到的问题开始悄悄浮上来。"
+  },
+  {
+    id: 6,
+    emoji: "🔄",
+    shortName: "持续进化",
+    stage: "运营监控与持续迭代",
+    stageEn: "Operations & Iteration",
+    processTerms: ["Model Drift Monitoring", "Badcase Review", "Roadmap Planning"],
+    color: "#3B4FD8",
+    soft: "#EEF1FF",
+    border: "#BBCAFF",
+    tagline: "AI产品不是上线就结束，它真正的寿命从运营闭环开始计算",
+    scene: "小焦工位 → 数据看板 → 季度规划会",
+    time: "项目上线后第1-3个月",
+    difficulty: 2,
+    diffLabel: "运营体系 · 持续迭代",
+    panels: [
+      { mood: "warm", icon: "☕", who: "PM", moodEmoji: "😌", line: "上线一个月，一切看起来稳稳地跑着" },
+      { mood: "normal", icon: "📊", who: "PM", moodEmoji: "🧭", line: "先搭看板、badcase收集和周度review机制" },
+      { mood: "insight", icon: "🔁", who: "算法工程师", moodEmoji: "🤓", line: "每周一起看top badcase，持续微调规则" },
+      { mood: "conflict", icon: "📉", who: "PM", moodEmoji: "😟", line: "功能建议类准确率悄悄从88%滑到74%" },
+      { mood: "insight", icon: "🧠", who: "算法工程师", moodEmoji: "😮", line: "不是模型坏了，是新版本术语让知识过期了" },
+      { mood: "win", icon: "🗺️", who: "产品VP", moodEmoji: "👏", line: "建立闭环后，开始规划下一代自动回复建议" }
+    ],
+    challenge: "上线后的最大误判是把“稳定运行”当成终点。业务持续变化、产品版本持续迭代，模型不更新就会慢慢失效。真正难的是在问题还没全面爆炸之前，就识别出局部下滑背后的模式变化。",
+    solution: "先建立运营仪表盘、badcase 自动收集和周度复盘机制，再做 Model Drift Monitoring，把“类别准确率连续下滑”从偶然现象变成可追踪信号。发现新功能术语导致分类漂移后，补上业务变化 → AI知识同步 → 回归验证的闭环，并把经验写回下一阶段 Roadmap Planning。",
+    capabilities: ["运营体系设计", "模型漂移监控", "Badcase分析", "数据反馈闭环", "产品Roadmap规划"],
+    roles: [
+      { role: "PM", emoji: "🧑‍💻", os: ["我以为上线就是终点，结果只是另一段旅程的起点。", "AI产品原来像养孩子，不是生完就完了。"] },
+      { role: "算法工程师", emoji: "🧠", os: ["我就知道，模型不更新迟早要出问题。", "这不是模型变笨了，是世界变了，我们没跟上。"] },
+      { role: "Support负责人", emoji: "🎧", os: ["效果确实好，但最近功能建议类怎么又开始不准了？", "一线最先感知到漂移，只是未必能第一时间说清原因。"] },
+      { role: "产品VP", emoji: "👔", os: ["ROI达标了，但我更关心这个项目还能长出什么。", "如果闭环搭起来了，这就不是一次性项目，而是一条产品线。"] }
+    ],
+    meetings: [
+      {
+        title: "周度 Badcase Review",
+        type: "运营复盘",
+        attendees: ["PM", "算法工程师"],
+        duration: "30 min",
+        note: "复盘 top badcase、更新 prompt 规则并追踪修复效果"
+      },
+      {
+        title: "月度 AI 效果复盘",
+        type: "运营评审",
+        attendees: ["PM", "算法工程师", "Support负责人"],
+        duration: "60 min",
+        note: "检查各类别趋势、异常告警和业务变化对模型效果的影响"
+      },
+      {
+        title: "季度规划会",
+        type: "Roadmap规划",
+        attendees: ["PM", "产品VP"],
+        duration: "60 min",
+        note: "基于三个月结果复盘，提出“自动回复建议”作为下一阶段方向"
+      }
+    ],
+    decision: "建立产品更新 → AI同步 → 效果监控的运营闭环，并把“自动回复建议”确定为下一阶段重点方向。",
+    deliverables: [
+      {
+        icon: "📊",
+        name: "运营监控Dashboard定义文档",
+        desc: "明确准确率、采纳率、分类分布、异常阈值和告警逻辑"
+      },
+      {
+        icon: "🔁",
+        name: "Badcase Review SOP",
+        desc: "沉淀收集、归因、修复、验证四步流程，固定周度复盘节奏"
+      },
+      {
+        icon: "🧩",
+        name: "模型更新 SOP",
+        desc: "规定业务变化触发条件、知识同步动作和回归测试标准"
+      },
+      {
+        icon: "📄",
+        name: "项目复盘报告",
+        desc: "总结目标达成情况、ROI 实绩和 AI 产品方法论沉淀"
+      },
+      {
+        icon: "🚀",
+        name: "下一阶段规划 Proposal",
+        desc: "论证“AI自动回复建议”方向的业务价值、资源预估与推进节奏"
+      }
+    ],
+    pitfall: "看到某个类别准确率缓慢下滑时，最容易以为只是短期波动。但 AI 产品真正棘手的地方恰恰在于：它常常不是突然崩，而是随着业务变化一点点偏掉。",
+    lesson: "AI 产品不是上线就完事了。业务变化会带来模型漂移，不是模型变差了，而是模型没跟上新的现实。只有把业务变化、知识更新、效果监控和 roadmap 串成闭环，产品才能长期活着。",
+    conclusion: "一个产品的终点，是另一个产品的起点。"
+  }
+];
+
+let activeId = 1;
+
+function diffStars(n) {
+  return "⭐".repeat(n) + "☆".repeat(3 - n);
+}
+
+function renderTimeline() {
+  const inner = document.getElementById("timelineInner");
+  inner.innerHTML = CHAPTERS.map((ch, i) => `
+    ${i > 0 ? `<div class="t-line"></div>` : ""}
+    <button class="t-node ${ch.id === activeId ? "active" : ""}"
+      style="--ch-color:${ch.color}"
+      onclick="showChapter(${ch.id})">
+      <div class="t-dot">${ch.emoji}</div>
+      <div class="t-name">第${ch.id}章</div>
+      <div class="t-stage">${ch.shortName}</div>
+    </button>
+  `).join("");
+}
+
+function renderChapter(ch) {
+  if (!ch.panels) {
+    return `
+      <div class="placeholder-card" style="--ch-color:${ch.color};--ch-soft:${ch.soft};--ch-border:${ch.border}">
+        <div class="ph-emoji">${ch.emoji}</div>
+        <div class="ph-title">第${ch.id}章 · ${ch.shortName}</div>
+        <div class="ph-sub">${ch.stage} &nbsp;·&nbsp; ${ch.stageEn}</div>
+        <div style="margin-top:12px;font-size:13px;color:#9B8570">内容即将填入</div>
+      </div>`;
+  }
+
+  const processTermsHtml = (ch.processTerms || []).map(t =>
+    `<span class="ch-process-tag">${t}</span>`
+  ).join("");
+
+  // build a role→quotes map for quick lookup
+  const osMap = {};
+  (ch.roles || []).forEach(r => { osMap[r.role] = r.os; });
+
+  const panelsHtml = ch.panels.map((p, i) => {
+    const hasOS = !!osMap[p.who];
+    const quotesAttr = hasOS
+      ? `data-clickable="1" onclick="showOSFromPanel(event,'${p.who}',${JSON.stringify(osMap[p.who]).replace(/"/g,'&quot;')})"`
+      : "";
+    return `
+      ${i > 0 ? `<div class="p-arrow">›</div>` : ""}
+      <div class="p-mini ${p.mood}" ${quotesAttr}>
+        <div class="p-scene-icon">${p.icon}</div>
+        <div class="p-mood">${p.moodEmoji}</div>
+        <div class="p-who">${p.who}</div>
+        <div class="p-line">${p.line}</div>
+        ${hasOS ? `<div class="p-hint">点击看内心OS 💭</div>` : ""}
+      </div>`;
+  }).join("");
+
+  const tagsHtml = ch.capabilities.map(t =>
+    `<span class="tag" style="--ch-color:${ch.color};--ch-soft:${ch.soft};--ch-border:${ch.border}">${t}</span>`
+  ).join("");
+
+  const rolesHtml = (ch.roles || []).map(r =>
+    `<button class="role-chip" style="--ch-color:${ch.color};--ch-soft:${ch.soft}"
+       onclick="showOS(event,'${r.role}',${JSON.stringify(r.os).replace(/"/g,'&quot;')})">
+       ${r.emoji} ${r.role}<span class="rc-hint">💭</span>
+     </button>`
+  ).join("");
+
+  const meetingsHtml = (ch.meetings || []).map(m => `
+    <div class="meeting-item">
+      <div class="mi-title">${m.title}</div>
+      <div class="mi-meta">⏱ ${m.duration} &nbsp;·&nbsp; 类型：${m.type}</div>
+      <div class="mi-attendees">参会：${m.attendees.join(" · ")}</div>
+      ${m.note ? `<div class="mi-meta" style="margin-top:3px">📌 ${m.note}</div>` : ""}
+    </div>
+  `).join("");
+
+  const delsHtml = (ch.deliverables || []).map(d => `
+    <div class="del-item">
+      <div class="del-icon">${d.icon}</div>
+      <div class="del-body">
+        <div class="del-name">${d.name}</div>
+        <div class="del-desc">${d.desc}</div>
+      </div>
+    </div>
+  `).join("");
+
+  const capTagsHtml = ch.capabilities.map(t =>
+    `<span class="cap-tag" style="--ch-color:${ch.color}">${t}</span>`
+  ).join("");
+
+  const nextCh = CHAPTERS.find(c => c.id === ch.id + 1);
+  const nextBar = nextCh ? `
+    <div class="next-bar" style="--next-color:${nextCh.color};--next-soft:${nextCh.soft};--next-border:${nextCh.border}" onclick="showChapter(${nextCh.id})">
+      <div class="next-bar-text">
+        <strong>下一章 · ${nextCh.shortName}</strong>
+        ${ch.suspense || ""}
+      </div>
+      <div class="next-arrow">${nextCh.emoji} →</div>
+    </div>` : "";
+
+  return `
+    <div class="chapter-card" style="--ch-color:${ch.color};--ch-soft:${ch.soft};--ch-border:${ch.border}">
+
+      <div class="ch-band" style="background:${ch.color}" data-en="${ch.stageEn}" data-num="${ch.id}">
+        <div class="ch-hero-emoji">${ch.emoji}</div>
+        <div class="ch-band-body">
+          <div class="ch-seq">第 ${ch.id} 章 · ${ch.stage}</div>
+          <div class="ch-title">${ch.shortName}</div>
+          <div class="ch-en-label">${ch.stageEn}</div>
+          <div class="ch-tagline">「${ch.tagline}」</div>
+          <div class="ch-meta-row">
+            <div class="ch-diff">难度 ${diffStars(ch.difficulty)} · ${ch.diffLabel}</div>
+            <div class="ch-scene-info">📍 ${ch.scene}</div>
+            ${processTermsHtml}
+          </div>
+        </div>
+      </div>
+
+      <div class="story-strip">
+        <div class="section-label">故事线 · 关键节点</div>
+        <div class="panels-row">${panelsHtml}</div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-block">
+          <div class="ib-icon">⚡</div>
+          <div class="ib-label">核心挑战</div>
+          <div class="ib-content">${ch.challenge}</div>
+        </div>
+        <div class="info-block">
+          <div class="ib-icon">🧭</div>
+          <div class="ib-label">解决路径</div>
+          <div class="ib-content">${ch.solution}</div>
+        </div>
+        <div class="info-block">
+          <div class="ib-icon">🏷️</div>
+          <div class="ib-label">PM 能力标签</div>
+          <div class="ib-content">
+            <div class="tag-row">${tagsHtml}</div>
+          </div>
+        </div>
+        <div class="info-block">
+          <div class="ib-icon">⏱️</div>
+          <div class="ib-label">时间节点</div>
+          <div class="ib-content">${ch.time}</div>
+        </div>
+      </div>
+
+      <div class="meeting-section">
+        <div class="meeting-header">📋 本章速览 · 会议 &amp; 产出物</div>
+        <div class="meeting-body">
+          <div class="meeting-left">
+            <div class="ms-title">会议信息</div>
+            <div class="roles-line">${rolesHtml}</div>
+            ${meetingsHtml}
+            <div class="decision-box" style="--ch-color:${ch.color}">
+              <strong>本章关键决策</strong>
+              ${ch.decision}
+            </div>
+          </div>
+          <div class="meeting-right">
+            <div class="ms-title">产出物</div>
+            ${delsHtml}
+          </div>
+        </div>
+      </div>
+
+      <div class="cap-bar">
+        <span class="cap-label">PM能力雷达</span>
+        ${capTagsHtml}
+      </div>
+
+      <div class="pitfall-bar">
+        <div class="pit-icon">💥</div>
+        <div class="pit-body">
+          <div class="pit-heading">踩坑 · 反思</div>
+          <div class="pit-trap">${ch.pitfall}</div>
+          <div class="pit-lesson">🔍 ${ch.lesson}</div>
+        </div>
+      </div>
+
+      ${nextBar}
+    </div>`;
+}
+
+/* ── OS Easter Egg ── */
+let osHideTimer = null;
+
+function _triggerOS(event, role, quotes) {
+  event.stopPropagation();
+  const popup = document.getElementById("osPopup");
+  const text = quotes[Math.floor(Math.random() * quotes.length)];
+  document.getElementById("osPopupRole").textContent = role + " · 内心OS";
+  document.getElementById("osPopupText").textContent = text;
+
+  const rect = event.currentTarget.getBoundingClientRect();
+  const left = Math.min(rect.left, window.innerWidth - 300);
+  const top  = rect.bottom + 10;   // fixed定位用视口坐标，不加scrollY
+  popup.style.display = "block";
+  popup.style.left = left + "px";
+  popup.style.top  = top + "px";
+
+  clearTimeout(osHideTimer);
+  osHideTimer = setTimeout(hideOS, 4500);
+}
+
+// called from panel click
+function showOSFromPanel(event, role, quotes) { _triggerOS(event, role, quotes); }
+
+// called from role chip click (kept for meeting section)
+function showOS(event, role, quotes) { _triggerOS(event, role, quotes); }
+
+function hideOS() {
+  document.getElementById("osPopup").style.display = "none";
+}
+
+document.addEventListener("click", hideOS);
+
+/* ── Chapter switching ── */
+function showChapter(id) {
+  activeId = id;
+  renderTimeline();
+  const ch = CHAPTERS.find(c => c.id === id);
+  document.getElementById("chapterMount").innerHTML = renderChapter(ch);
+  document.querySelector(".chapter-area").scrollIntoView({ behavior: "smooth", block: "start" });
+  history.replaceState(null, "", `#ch${id}`);
+}
+
+function init() {
+  const hash = window.location.hash.match(/^#ch(\d)$/);
+  activeId = hash ? Number(hash[1]) : 1;
+  renderTimeline();
+  const ch = CHAPTERS.find(c => c.id === activeId);
+  document.getElementById("chapterMount").innerHTML = renderChapter(ch);
+}
+
+init();
+</script>
+</body>
+</html>
